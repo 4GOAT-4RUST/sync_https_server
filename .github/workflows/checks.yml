@@ -1,0 +1,108 @@
+on:
+    push: 
+        branches:
+            - main
+            - dev
+    pull_request:
+        branches:
+            - main
+            - dev
+    permissions:
+        content: write
+
+jobs:
+    checking-repo:  
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Repository
+            - uses: actions/checkout@v4
+    caching-dependencies:
+        needs: checking-repo
+        runs-on: ubuntu-latest
+        steps:
+            - name: Chaching Dependencies
+            - uses: actions/cache@v4
+              with:
+                path: |
+                    ~.cargo/bin/
+                    ~/.cargo/registry/index/
+                    ~/.cargo/registry/cache/
+                    ~.cargo/.git/db/
+                    target
+                key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+                restore-keys: |
+                    ${{ runner.os }}-cargo-
+
+    checking-code:
+        needs: checking-repo
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checking The File For Error and Wrong Codes
+            - uses: actions-rs/toolchain@v1
+              with: |
+                toolchain: stable
+                override: true
+            - name: Running some checks on the code
+              run: | 
+                cargo install cargo-check
+                cargo check --verbose
+                cargo test --verbose
+                
+    clippy:
+        runs-on: ubuntu-latest
+        steps:
+
+            - uses: actions-rs/toolchain@v1
+              with:
+                toolchain: stable
+
+
+            - name: install cargo fmt
+            - uses: actions-rs/toolchain@v1
+              with:
+                profile: minimal
+                toolchain: stable
+                component: cargo fmt
+
+            - name: Run cargo fmt 
+              run: cargo fmt -- --checkres -- -D warnings
+    
+    security_audit:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+            - uses: actions/checkout@v3
+
+            - name: Set up Rust
+            - uses: actions-rs/toolchain@v1
+              with:
+                toolchain: stable
+                profile: minimal
+                override: true
+
+            - name: Install cargo-audit
+              run: cargo install cargo-audit
+
+            - name: Run cargo audit
+              run: cargo audit
+              env:
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Check for vulnerabilities
+              if: ${{ failure() }}
+              run: echo "Vulnerabilities detected. Please address them before merging."
+    formating-aspects:
+        runs-on: ubuntu-latest
+        steps: 
+            - name: checkout repository
+            - uses: actions/checkout@v3
+
+            - name: install cargo fmt
+            - uses: actions-rs/toolchain@v1
+              with:
+                profile: minimal
+                toolchain: stable
+                component: cargo fmt
+
+            - name: Run cargo fmt 
+              run: cargo fmt -- --check
