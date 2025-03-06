@@ -1,0 +1,11 @@
+on:
+    push: 
+        branches:
+            - main
+            - dev
+
+jobs:
+    checking-repo:  
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v4
