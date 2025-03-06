@@ -7,10 +7,28 @@ on:
 jobs:
     checking-repo:  
         runs-on: ubuntu-latest
-        steps:
+            steps:
             - name: Checkout Repository
               uses: actions/checkout@v4
+    caching-dependencies:
+        needs: checking-repo
+        runs-on: ubuntu-latest
+            steps:
+            - name: Chaching Dependencies
+            - uses: actions/cache@v4
+              with:
+                path: |
+                    ~.cargo/bin/
+                    ~/.cargo/registry/index/
+                    ~/.cargo/registry/cache/
+                    ~.cargo/.git/db/
+                    target
+                key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+                restore-keys: |
+                    ${{ runner.os }}-cargo-
+
     checking-code:
+        needs: checking-repo
         runs-on: ubuntu-latest
         steps:
         - name: Checking The File For Error and Wrong Codes
@@ -22,8 +40,8 @@ jobs:
           run: | 
                 cargo install cargo-check
                 cargo check --verbose
+                cargo test --verbose
                 
-jobs:
     clippy:
         runs-on: ubuntu-latest
         steps:
@@ -42,4 +60,4 @@ jobs:
             args: --all-features -- -D warnings
 
         - name: Run clippy
-        run: cargo clippy --all-features -- -D warnings
+          run: cargo clippy --all-features -- -D warnings
