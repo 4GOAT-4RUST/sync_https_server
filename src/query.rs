@@ -10,9 +10,8 @@ fn send_response(stream: &mut std::net::TcpStream, response: &str) {
     }
 }
 
-
 pub fn handle_client(mut stream: TcpStream) {
-    let mut buffer = [0;1024];
+    let mut buffer = [0; 1024];
 
     // Trying to read from Stream
     if let Err(e) = stream.read(&mut buffer) {
@@ -99,19 +98,23 @@ pub fn handle_client(mut stream: TcpStream) {
     let payload = match payload {
         Some(p) if !p.trim().is_empty() => p,
         _ => {
-            let response = "HTTP/1.1 400 Bad Request\r\n\r\nError: 'payload' must be a non-empty string.";
+            let response =
+                "HTTP/1.1 400 Bad Request\r\n\r\nError: 'payload' must be a non-empty string.";
             send_response(&mut stream, response);
             return;
         }
     };
 
     // Assuming Parameters are Valid
-    println!("Received valid Request: delay={} , payload={}",delay,payload);
+    println!(
+        "Received valid Request: delay={} , payload={}",
+        delay, payload
+    );
     let response = "HTTP/1.1 200 OK\r\n\r\nRequest processed successfully.";
     if let Err(e) = stream.write_all(response.as_bytes()) {
-        eprintln!("Failed to send response; {}",e);
+        eprintln!("Failed to send response; {}", e);
     }
     if let Err(e) = stream.flush() {
-        eprintln!("Failed to Flush response: {}",e)
+        eprintln!("Failed to Flush response: {}", e)
     }
 }
