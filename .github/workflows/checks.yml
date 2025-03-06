@@ -6,6 +6,40 @@ on:
 
 jobs:
     checking-repo:  
+        runs-on: ubuntu-latest
         steps:
             - name: Checkout Repository
               uses: actions/checkout@v4
+    checking-code:
+        runs-on: ubuntu-latest
+        steps:
+        - name: Checking The File For Error and Wrong Codes
+        - uses: actions-rs/toolchain@v1
+          with: |
+            toolchain: stable
+            override: true
+        - name: Running some checks on the code
+          run: | 
+                cargo install cargo-check
+                cargo check --verbose
+                
+jobs:
+    clippy:
+        runs-on: ubuntu-latest
+        steps:
+
+        - uses: actions/checkout@v1
+
+        - uses: actions-rs/toolchain@v1
+          with:
+            toolchain: stable
+            components: clippy
+            override: true
+
+        - uses: actions-rs/clippy-check@v1
+          with:
+            token: ${{ secrets.GITHUB_TOKEN }}
+            args: --all-features -- -D warnings
+
+        - name: Run clippy
+        run: cargo clippy --all-features -- -D warnings
