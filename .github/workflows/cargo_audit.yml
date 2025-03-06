@@ -1,5 +1,5 @@
+# this workflow will check for vulnurabilities on the rust project
 name: Rust Checker
-
 on:
   push:
     branches:
