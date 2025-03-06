@@ -1,3 +1,4 @@
+name: Deploy and Run
 on:
     push: 
         branches:
@@ -5,7 +6,7 @@ on:
             - dev
 
 jobs:
-    checking-repo:  
+    viewing_repo:  
         steps:
             - name: Checkout Repository
               uses: actions/checkout@v4
