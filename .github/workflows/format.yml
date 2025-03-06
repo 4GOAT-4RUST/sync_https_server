@@ -1,4 +1,4 @@
-name: checkout repository
+name: format code 
 
 on:
     push: 
