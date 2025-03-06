@@ -1,0 +1,24 @@
+name: format code 
+
+on:
+    push: 
+        branches:
+            - main
+            - dev
+jobs:
+     Formating_aspects:
+             runs-on: ubuntu-latest
+             steps: 
+             - name: checkout repository
+               uses: actions/checkout@v3
+
+             - name: install cargo fmt
+               uses: actions-rs/toolchain@v1
+               with:
+                  profile: minimal
+                  toolchain: stable
+                  component: cargo fmt
+
+             - name: Run cargo fmt 
+               run: cargo fmt -- --check
+                   
