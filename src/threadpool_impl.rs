@@ -1,32 +1,101 @@
-use std::thread;
-#[derive(Debug)]
-/// This Thread pool will allow you to create any specified number if thread you wish to create
-/// Each of the threads are running on an open closure
+use std::{
+    sync::{mpsc, Arc, Mutex}, thread
+};
+
 pub struct ThreadPool {
-    workers: Vec<Workers>,
-}
-#[derive(Debug)]
-pub struct Workers {
-    id: usize,
-    thread: thread::JoinHandle<()>,
+    workers: Vec<Worker>,
+    sender: Option<mpsc::Sender<Job>>,
 }
 
-impl Workers {
-    pub fn new(id: usize) -> Workers {
-        let thread = thread::spawn(|| {});
-        Workers { id, thread }
+type Job = Box<dyn FnOnce() + Send + 'static>;
+
+impl ThreadPool {
+    /// Create a new ThreadPool.
+    ///
+    /// The size is the number of threads in the pool.
+    ///
+    /// # Panics
+    ///
+    /// The `new` function will panic if the size is zero.
+    pub fn new(size: usize) -> ThreadPool {
+        assert!(size > 0);
+
+        let (sender, receiver) = mpsc::channel();
+
+        let receiver = Arc::new(Mutex::new(receiver));
+
+        let mut workers = Vec::with_capacity(size);
+
+        for id in 0..size {
+            workers.push(Worker::new(id, Arc::clone(&receiver)));
+        }
+
+        ThreadPool {
+            workers,
+            sender: Some(sender),
+        }
+    }
+
+    pub fn execute<F>(&self, f: F)
+    where
+        F: FnOnce() + Send + 'static,
+    {
+        let job = Box::new(f);
+
+        match self.sender.as_ref() {
+            Some(data) => {match data.send(job) {
+                Ok(_) => {},
+                Err(e) => {eprintln!("Error while Sending code: {}",e)},
+            }},
+            None => {eprintln!("Could not send message")},
+        }
+        //unwrap().send(job).unwrap();
     }
 }
 
-impl ThreadPool {
-    pub fn new(size: usize) -> ThreadPool {
-        if size < 1 {
-            return ThreadPool::new(0);
+impl Drop for ThreadPool {
+    fn drop(&mut self) {
+        drop(self.sender.take());
+
+        for worker in &mut self.workers {
+            println!("Shutting down worker {}", worker.id);
+
+            if let Some(thread) = worker.thread.take() {
+                match thread.join() {
+                    Ok(_) => {println!("All Good")},
+                    Err(e) => {eprintln!("Not all Good: {:?}",e)},
+                }
+            }
         }
-        let mut workers = Vec::with_capacity(size);
-        for id in 0..size {
-            workers.push(Workers::new(id));
+    }
+}
+
+struct Worker {
+    id: usize,
+    thread: Option<thread::JoinHandle<()>>,
+}
+
+impl Worker {
+    fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Job>>>) -> Worker {
+        let thread = thread::spawn(move || loop {
+            let message = receiver.lock().unwrap().recv();
+
+            match message {
+                Ok(job) => {
+                    println!("Worker {id} got a job; executing.");
+
+                    job();
+                }
+                Err(_) => {
+                    println!("Worker {id} disconnected; shutting down.");
+                    break;
+                }
+            }
+        });
+
+        Worker {
+            id,
+            thread: Some(thread),
         }
-        ThreadPool { workers }
     }
 }
