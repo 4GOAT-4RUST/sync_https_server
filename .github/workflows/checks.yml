@@ -3,13 +3,19 @@ on:
         branches:
             - main
             - dev
+    pull_request:
+        branches:
+            - main
+            - dev
+    permissions:
+        content: write
 
 jobs:
     checking-repo:  
         runs-on: ubuntu-latest
             steps:
             - name: Checkout Repository
-              uses: actions/checkout@v4
+            - uses: actions/checkout@v4
     caching-dependencies:
         needs: checking-repo
         runs-on: ubuntu-latest
@@ -61,3 +67,28 @@ jobs:
 
         - name: Run clippy
           run: cargo clippy --all-features -- -D warnings
+    
+    security_audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+
+      - name: Install cargo-audit
+        run: cargo install cargo-audit
+
+      - name: Run cargo audit
+        run: cargo audit
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check for vulnerabilities
+        if: ${{ failure() }}
+        run: echo "Vulnerabilities detected. Please address them before merging."
