@@ -1,3 +1,3 @@
-
-mod connect;
+pub mod connect;
 pub mod query;
+
