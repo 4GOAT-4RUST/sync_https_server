@@ -4,11 +4,7 @@ use std::{
     net::TcpStream,
 };
 
-fn send_response(stream: &mut std::net::TcpStream, response: &str) {
-    if let Err(e) = stream.write_all(response.as_bytes()) {
-        eprintln!("Failed to send response: {}", e);
-    }
-}
+use crate::response::send_response;
 
 pub fn handle_client(mut stream: TcpStream) {
     let mut buffer = [0; 1024];
