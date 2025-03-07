@@ -2,12 +2,13 @@ use std::{
     sync::{mpsc, Arc, Mutex}, thread
 };
 
+use crate::worker::{Job, Worker};
+
 pub struct ThreadPool {
     workers: Vec<Worker>,
     sender: Option<mpsc::Sender<Job>>,
 }
 
-type Job = Box<dyn FnOnce() + Send + 'static>;
 
 impl ThreadPool {
     /// Create a new ThreadPool.
@@ -58,7 +59,7 @@ impl Drop for ThreadPool {
         drop(self.sender.take());
 
         for worker in &mut self.workers {
-            println!("Shutting down worker {}", worker.id);
+            println!("Shutting down worker {}", worker.get_id());
 
             if let Some(thread) = worker.thread.take() {
                 match thread.join() {
@@ -70,32 +71,3 @@ impl Drop for ThreadPool {
     }
 }
 
-struct Worker {
-    id: usize,
-    thread: Option<thread::JoinHandle<()>>,
-}
-
-impl Worker {
-    fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Job>>>) -> Worker {
-        let thread = thread::spawn(move || loop {
-            let message = receiver.lock().unwrap().recv();
-
-            match message {
-                Ok(job) => {
-                    println!("Worker {id} got a job; executing.");
-
-                    job();
-                }
-                Err(_) => {
-                    println!("Worker {id} disconnected; shutting down.");
-                    break;
-                }
-            }
-        });
-
-        Worker {
-            id,
-            thread: Some(thread),
-        }
-    }
-}
