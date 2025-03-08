@@ -4,10 +4,7 @@ use std::{
     net::TcpStream,
 };
 
-use crate::{
-    base64_decode::base64_decode,
-    response::{self, send_response},
-};
+use crate::{base64_decode::base64_decode, response::send_response};
 
 pub fn handle_client(mut stream: TcpStream) {
     let mut buffer = [0; 1024];
@@ -108,7 +105,7 @@ pub fn handle_client(mut stream: TcpStream) {
 
                 let decoded_payload = match base64_decode(&payload) {
                     Ok(data) => data,
-                    Err(e) => {
+                    Err(_) => {
                         let response =  "HTTP/1.1 400 Bad Request\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}";
                         send_response(&mut stream, response);
                         return;
@@ -118,12 +115,13 @@ pub fn handle_client(mut stream: TcpStream) {
                 // Convert the decoded payload back to a string (for simplicity)
                 let decoded_message = String::from_utf8_lossy(&decoded_payload);
 
-                // Construct the response
+                // Construct the plain text response
                 let response = format!(
-            "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: {}\r\n\r\n{{\"decoded_message\": \"{}\"}}",
-            decoded_message.len() + 22, /* 22 is the length of the JSON structure and quotes */
-            decoded_message
-        );
+                    "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\nDecoded Message: {}\nDelay: {}",
+                    decoded_message.len() + 18 + delay.to_string().len(), /* 18 is the length of the additional text */
+                    decoded_message,
+                    delay
+                );
 
                 send_response(&mut stream, &response);
                 // Assuming Parameters are Valid
