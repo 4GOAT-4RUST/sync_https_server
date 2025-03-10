@@ -1,7 +1,7 @@
 
 
 mod threadpool_impl;
-mod worker
+mod worker;
 pub mod connect;
 pub mod query;
 pub mod mili;
