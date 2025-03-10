@@ -7,4 +7,6 @@ pub mod query;
 pub mod mili;
 pub mod response;
 pub mod base64_decode;
+pub mod test_threadpool;
+pub mod log;
 

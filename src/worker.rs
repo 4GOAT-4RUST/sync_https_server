@@ -1,4 +1,4 @@
-use std::{sync::{mpsc, Arc, Mutex}, thread::{self, Thread}};
+use std::{sync::{mpsc, Arc, Mutex}, thread::{self}};
 
 pub struct Worker {
     id: usize,
@@ -33,5 +33,10 @@ impl Worker {
     pub fn get_id(&self) -> usize {
         self.id
     }
+}
+
+#[test]
+fn test_worker(){
+
 }
 

@@ -5,8 +5,8 @@ use std::{
 use crate::worker::{Job, Worker};
 
 pub struct ThreadPool {
-    workers: Vec<Worker>,
-    sender: Option<mpsc::Sender<Job>>,
+    pub workers: Vec<Worker>,
+    pub sender: Option<mpsc::Sender<Job>>,
 }
 
 
@@ -53,6 +53,10 @@ impl ThreadPool {
         //unwrap().send(job).unwrap();
     }
 }
+#[test]
+fn test_thread_pool(){
+
+}
 
 impl Drop for ThreadPool {
     fn drop(&mut self) {
@@ -63,8 +67,8 @@ impl Drop for ThreadPool {
 
             if let Some(thread) = worker.thread.take() {
                 match thread.join() {
-                    Ok(_) => {println!("All Good")},
-                    Err(e) => {eprintln!("Not all Good: {:?}",e)},
+                    Ok(_) => {println!("Successfully Executed The Job")},
+                    Err(e) => {eprintln!("Could Not Complete Job: {:?}",e)},
                 }
             }
         }
