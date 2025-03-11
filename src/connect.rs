@@ -50,7 +50,7 @@ pub fn connectivity(mut stream: TcpStream) {
     if let Some(first_line) = http.first() {
         if first_line == "GET / HTTP/1.1" {
             match mili::mili() {
-                Ok(s) => {
+                Ok(_) => {
                     let status_line = "HTTP/1.1 200 OK";
 
                     if let Err(e) = stream.write_all(status_line.as_bytes()) {
