@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 use std::io::{Read, Write};
+use std::thread;
+use std::time::Duration;
 
 use crate::base64_decode::base64_decode;
 use crate::response::send_response;
@@ -138,6 +140,12 @@ fn handle_decode<T: Write>(stream: &mut T, request: &str) {
             );
 
             println!("Debug: Successful decoding, response: {}", response);
+
+            // Introduce the delay before sending the response
+            println!("Debug: Delaying response by {} seconds...", delay);
+            thread::sleep(Duration::from_secs(delay));
+
+            // Send the response after the delay
             send_response(stream, &response);
         }
         Err(_) => {
