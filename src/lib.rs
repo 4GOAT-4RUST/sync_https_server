@@ -1,6 +1,5 @@
 pub mod base64_decode;
 pub mod connect;
-pub mod mili;
 pub mod query;
 pub mod response;
 pub mod threadpool_impl;

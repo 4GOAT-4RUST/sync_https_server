@@ -15,7 +15,7 @@ pub fn handle_client<T: Read + Write>(mut stream: T) {
 
     // Try reading data from the stream
     match stream.read(&mut buffer) {
-        Ok(bytes_read) if bytes_read == 0 => {
+        Ok(0) => {
             println!("Debug: No data received from client");
             send_response(&mut stream, "No data received from Client\n");
             return;
