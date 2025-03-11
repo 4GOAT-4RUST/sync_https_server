@@ -3,10 +3,12 @@ on:
         branches:
             - main  # Trigger the workflow when pushing to the main branch
             - dev   # Trigger the workflow when pushing to the dev branch
+            - "**"
     pull_request:
         branches:
             - main  # Trigger on pull requests targeting the main branch
             - dev   # Trigger on pull requests targeting the dev branch
+            
 
 permissions:
     contents: write  # Grants permission to modify repository contents
