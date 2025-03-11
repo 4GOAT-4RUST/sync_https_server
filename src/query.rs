@@ -72,7 +72,7 @@ pub fn handle_client<T: Read + Write>(mut stream: T) {
     }
 
     // Figure out what kind of request we received
-    match (parts.get(0), parts.get(1)) {
+    match (parts.first(), parts.get(1)) {
         (Some(&"POST"), Some(&"/decode")) => handle_decode(&mut stream, request),
         (_, Some(route)) => {
             println!("Debug: Route not found: {}", route);
