@@ -1,38 +1,45 @@
 pub fn base64_decode(input: &str) -> Result<Vec<u8>, &'static str> {
-    let base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
-    // creating a lookup table for the Base64 characters
-    let mut index_map = [0; 256];
-    for (i, c) in base64_chars.chars().enumerate() {
-        // Allocating Corresponding Numerical Values to their characters
+    const BASE64_CHARS: &str = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    
+    let mut index_map = [255u8; 256]; // 255 represents an invalid character
+    for (i, c) in BASE64_CHARS.chars().enumerate() {
         index_map[c as usize] = i as u8;
     }
 
-    // Removing Padding Characters
-    let input = input.trim_end_matches("=");
-
-    // Ensuring the length is a multiple of 4
-    if input.len() % 4 != 0 {
-        return Err("Input must be a multiple of 4");
+    if input.is_empty() {
+        return Err("Invalid input: empty string");
     }
 
-    let mut output: Vec<u8> = Vec::new();
-    let mut buffer = 0;
-    let mut buffer_length: usize = 0;
+    if input.len() % 4 != 0 {
+        return Err("Invalid length: must be a multiple of 4");
+    }
 
-    // Decoding the Base64 characters into their Binary Format
+    let mut input = input.to_string();
+    while input.len() % 4 != 0 {
+        input.push('='); // Ensure proper padding
+    }
+
+    let mut output = Vec::with_capacity((input.len() * 3) / 4);
+    let mut buffer: u32 = 0;
+    let mut bits_stored = 0;
+
     for c in input.chars() {
-        let index = index_map[c as usize];
-        if index == 0 && c != 'A' {
-            return Err("Invalid Base64 character");
+        if c == '=' {
+            break;
+        }
+        let value = index_map[c as usize];
+
+        if value == 255 {
+            return Err("Invalid character in input");
         }
 
-        buffer = (buffer << 6) | (index as u32);
-        buffer_length += 6;
+        buffer = (buffer << 6) | value as u32;
+        bits_stored += 6;
 
-        if buffer_length >= 8 {
-            output.push((buffer >> (buffer_length - 8)) as u8);
-            buffer_length -= 8;
+        while bits_stored >= 8 {
+            bits_stored -= 8;
+            output.push((buffer >> bits_stored) as u8);
+            buffer &= (1 << bits_stored) - 1;
         }
     }
 
