@@ -52,9 +52,10 @@ fn simulate_client_request(request: &str) -> io::Result<Option<String>> {
 #[test]
 fn test_handle_client_no_data() {
     if let Ok(Some(response)) = simulate_client_request("") {
-        assert_eq!(response, "No data received from Client\n");
+        assert_eq!(response, "HTTP/1.1 400 Bad Request\r\nNo data received from Client\r\n");
     }
 }
+
 
 // Test case: Invalid UTF-8 in request
 #[test]
