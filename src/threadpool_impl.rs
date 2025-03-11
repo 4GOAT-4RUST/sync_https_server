@@ -1,5 +1,6 @@
 use std::{
-    sync::{mpsc, Arc, Mutex}, thread
+    sync::{mpsc, Arc, Mutex},
+    thread,
 };
 
 use crate::worker::{Job, Worker};
@@ -8,7 +9,6 @@ pub struct ThreadPool {
     pub workers: Vec<Worker>,
     pub sender: Option<mpsc::Sender<Job>>,
 }
-
 
 impl ThreadPool {
     /// Create a new ThreadPool.
@@ -44,19 +44,21 @@ impl ThreadPool {
         let job = Box::new(f);
 
         match self.sender.as_ref() {
-            Some(data) => {match data.send(job) {
-                Ok(_) => {},
-                Err(e) => {eprintln!("Error while Sending code: {}",e)},
-            }},
-            None => {eprintln!("Could not send message")},
+            Some(data) => match data.send(job) {
+                Ok(_) => {}
+                Err(e) => {
+                    eprintln!("Error while Sending code: {}", e)
+                }
+            },
+            None => {
+                eprintln!("Could not send message")
+            }
         }
         //unwrap().send(job).unwrap();
     }
 }
 #[test]
-fn test_thread_pool(){
-
-}
+fn test_thread_pool() {}
 
 impl Drop for ThreadPool {
     fn drop(&mut self) {
@@ -67,11 +69,14 @@ impl Drop for ThreadPool {
 
             if let Some(thread) = worker.thread.take() {
                 match thread.join() {
-                    Ok(_) => {println!("Successfully Executed The Job")},
-                    Err(e) => {eprintln!("Could Not Complete Job: {:?}",e)},
+                    Ok(_) => {
+                        println!("Successfully Executed The Job")
+                    }
+                    Err(e) => {
+                        eprintln!("Could Not Complete Job: {:?}", e)
+                    }
                 }
             }
         }
     }
 }
-

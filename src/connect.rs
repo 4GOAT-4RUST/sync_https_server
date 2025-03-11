@@ -1,13 +1,14 @@
-use std::{
-    io::{ BufRead, BufReader, Write}, net::{TcpListener, TcpStream}
-};
 use crate::mili;
+use std::{
+    io::{BufRead, BufReader, Write},
+    net::{TcpListener, TcpStream},
+};
 pub fn listener() {
-    let listener = match TcpListener::bind("127.0.0.1:7800") {
+    let listener = match TcpListener::bind("127.0.0.1:8080") {
         // let listener = TcpListener::bind("127.0.0.1:8080").unwrap
         Ok(tcp_listener) => tcp_listener,
         Err(e) => {
-            eprintln!("failed to initialise listener");
+            eprintln!("failed to initialise listener: {}", e);
             std::process::exit(1);
         }
     };
@@ -48,20 +49,18 @@ pub fn connectivity(mut stream: TcpStream) {
         .collect();
     if let Some(first_line) = http.first() {
         if first_line == "GET / HTTP/1.1" {
+            match mili::mili() {
+                Ok(s) => {
+                    let status_line = "HTTP/1.1 200 OK";
 
-       match mili::mili() {
-        Ok(s)=> {
-       
-                let status_line = "HTTP/1.1 200 OK";
-
-                if let Err(e) = stream.write_all(status_line.as_bytes()) {
-                    eprintln!("Failed to write response: {}", e);
+                    if let Err(e) = stream.write_all(status_line.as_bytes()) {
+                        eprintln!("Failed to write response: {}", e);
+                    }
                 }
+                Err(e) => eprintln!("not possible"),
             }
-        Err(e) => eprintln!("not possible")
-            }
+        }
     }
-}
 }
 
 // fn main(){f
@@ -70,4 +69,3 @@ pub fn connectivity(mut stream: TcpStream) {
 //  if denominator == 0.map_err(|e|{{
 //    eprintln!("this is wrong)")})}
 //  }
- 

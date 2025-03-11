@@ -4,7 +4,7 @@ pub fn base64_decode(input: &str) -> Result<Vec<u8>, &'static str> {
 
     // Create a lookup table to quickly find the index of each character in BASE64_CHARS
     // 255 means the character is not a valid Base64 character
-    let mut index_map = [255u8; 256]; 
+    let mut index_map = [255u8; 256];
     for (i, c) in BASE64_CHARS.chars().enumerate() {
         index_map[c as usize] = i as u8;
     }
@@ -24,7 +24,7 @@ pub fn base64_decode(input: &str) -> Result<Vec<u8>, &'static str> {
 
     // Base64 requires padding with '=' characters, so we add them if needed
     while input.len() % 4 != 0 {
-        input.push('='); 
+        input.push('=');
     }
 
     // Prepare an output buffer with enough space for the decoded data

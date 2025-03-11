@@ -12,7 +12,7 @@ pub fn send_response<T: Write>(stream: &mut T, response: &str) {
         // Print an error message if writing fails
         eprintln!("Error writing response: {}", e);
     }
-    
+
     // Flush the stream to ensure all written data is sent immediately.
     // This prevents potential buffering delays that might cause incomplete responses.
     if let Err(e) = stream.flush() {

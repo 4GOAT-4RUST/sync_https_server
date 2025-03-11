@@ -116,7 +116,10 @@ fn handle_decode<T: Write>(stream: &mut T, request: &str) {
             println!("Debug: Missing 'payload'");
             send_response(
                 stream,
-                &format!("{}Error: 'payload' must be a non-empty string\r\n", HTTP_400),
+                &format!(
+                    "{}Error: 'payload' must be a non-empty string\r\n",
+                    HTTP_400
+                ),
             );
             return;
         }

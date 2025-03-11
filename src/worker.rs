@@ -1,4 +1,7 @@
-use std::{error::Error, io::Error, sync::{mpsc, Arc, Mutex, PoisonError}, thread::{self}};
+use std::{
+    sync::{mpsc, Arc, Mutex},
+    thread::{self},
+};
 
 pub struct Worker {
     id: usize,
@@ -11,9 +14,11 @@ impl Worker {
     pub fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Job>>>) -> Worker {
         let thread = thread::spawn(move || loop {
             let message = match receiver.lock() {
-                Ok(val) => {return val},
-                Err(e) => {eprintln!("Error: {}",e);
-            return PoisonError::new(Error);},
+                Ok(val) => val,
+                Err(e) => {
+                    eprintln!("Error: {}", e);
+                    return;
+                }
             }
             .recv();
 
@@ -21,7 +26,7 @@ impl Worker {
                 Ok(job) => {
                     println!("Worker {id} got a job; executing.");
 
-                    job();// This function executes the job and sends the response to the next thread
+                    job(); // This function executes the job and sends the response to the next thread
                 }
                 Err(_) => {
                     println!("Worker {id} disconnected; shutting down.");
@@ -40,7 +45,3 @@ impl Worker {
         self.id
     }
 }
-
-
-
-

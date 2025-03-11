@@ -1,9 +1,9 @@
 use std::sync::mpsc;
-use sync_https_server::threadpool_impl::ThreadPool;
 use std::sync::Arc;
 use std::sync::Mutex;
 use std::thread;
 use std::time::Duration;
+use sync_https_server::threadpool_impl::ThreadPool;
 
 #[test]
 fn test_thread_pool_creation() {
@@ -22,15 +22,23 @@ fn test_execute_single_job() {
 
     pool.execute(move || {
         match tx.send(()) {
-            Ok(_) => {println!("Send with success")},
-            Err(e) => {eprintln!("Failed to send job: {}",e)},
+            Ok(_) => {
+                println!("Send with success")
+            }
+            Err(e) => {
+                eprintln!("Failed to send job: {}", e)
+            }
         };
     });
 
     // Wait for the job to complete
     match rx.recv_timeout(Duration::from_secs(2)) {
-        Ok(_) => {println!("Execution successful")},
-        Err(e) => {eprintln!("Error: {}",e)},
+        Ok(_) => {
+            println!("Execution successful")
+        }
+        Err(e) => {
+            eprintln!("Error: {}", e)
+        }
     };
 }
 
@@ -41,12 +49,16 @@ fn test_execute_multiple_jobs() {
 
     let (tx, rx) = mpsc::channel();
 
-    let  value = tx.send(());
+    let value = tx.send(());
     for _ in 0..size {
         pool.execute(move || {
             match value {
-                Ok(_) => {println!("Thread executing ..")},
-                Err(e) => {eprintln!("Failed to execute job: {}",e)},
+                Ok(_) => {
+                    println!("Thread executing ..")
+                }
+                Err(e) => {
+                    eprintln!("Failed to execute job: {}", e)
+                }
             };
         });
     }
@@ -54,8 +66,12 @@ fn test_execute_multiple_jobs() {
     // Wait for all jobs to complete
     for _ in 0..size {
         match rx.recv_timeout(Duration::from_secs(2)) {
-            Ok(_) => {println!("Jobs Completed")},
-            Err(e) => {eprintln!("Jobs did not complete successfully: {}",e)},
+            Ok(_) => {
+                println!("Jobs Completed")
+            }
+            Err(e) => {
+                eprintln!("Jobs did not complete successfully: {}", e)
+            }
         };
     }
 
@@ -78,11 +94,14 @@ fn test_execute_with_panic() {
 
     // Submit a normal job
 
-
     // Wait for the normal job to complete
     match rx.recv_timeout(Duration::from_secs(2)) {
-        Ok(_) => {println!("Finished waiting")},
-        Err(e) => {eprintln!("Failed to wait: {}",e)},
+        Ok(_) => {
+            println!("Finished waiting")
+        }
+        Err(e) => {
+            eprintln!("Failed to wait: {}", e)
+        }
     };
 
     // Ensure the panicking job did not block the normal job
@@ -96,12 +115,16 @@ fn test_thread_pool_shutdown() {
 
     let (tx, rx) = mpsc::channel();
 
-    let  value = tx.send(());
+    let value = tx.send(());
     for _ in 0..size {
         pool.execute(move || {
             match value {
-                Ok(_) => {println!("Data send !")},
-                Err(e) => {eprintln!("Could not send data: {}",e)},
+                Ok(_) => {
+                    println!("Data send !")
+                }
+                Err(e) => {
+                    eprintln!("Could not send data: {}", e)
+                }
             };
         });
     }
@@ -112,8 +135,12 @@ fn test_thread_pool_shutdown() {
     // Wait for all jobs to complete
     for _ in 0..size {
         match rx.recv_timeout(Duration::from_secs(3)) {
-            Ok(_) => {println!("Job completed successfully")},
-            Err(e) => {eprintln!("Could not complete Jobs: {}",e)},
+            Ok(_) => {
+                println!("Job completed successfully")
+            }
+            Err(e) => {
+                eprintln!("Could not complete Jobs: {}", e)
+            }
         };
     }
 

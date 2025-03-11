@@ -41,7 +41,7 @@ fn simulate_client_request(request: &str) -> io::Result<Option<String>> {
 
     let mut response = Vec::new();
     mock_stream.stream.set_position(0); // Reset cursor to read response
-    
+
     match mock_stream.stream.read_to_end(&mut response) {
         Ok(_) => Ok(String::from_utf8(response).ok()),
         Err(e) => Err(e),
@@ -75,7 +75,8 @@ fn test_handle_client_invalid_utf8() {
 // Test case: Invalid 'delay' parameter (zero or missing)
 #[test]
 fn test_handle_client_post_decode_invalid_delay() {
-    let request = "POST /decode HTTP/1.1\r\nContent-Length: 25\r\n\r\ndelay=0&payload=SGVsbG8gd29ybGQ=";
+    let request =
+        "POST /decode HTTP/1.1\r\nContent-Length: 25\r\n\r\ndelay=0&payload=SGVsbG8gd29ybGQ=";
     if let Ok(Some(response)) = simulate_client_request(request) {
         assert!(response.contains("HTTP/1.1 400 Bad Request"));
         assert!(response.contains("Error: 'delay' must be a positive integer"));

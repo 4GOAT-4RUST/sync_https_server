@@ -7,8 +7,7 @@ use std::{
 pub(crate) fn mili() -> Result<(), std::io::Error> {
     let mut delay = String::new();
     println!("ask the user to enter a vlaue for the delay");
-    io::stdin()
-        .read_line(&mut delay)?;
+    io::stdin().read_line(&mut delay)?;
     //  let delay = "delay".parse::<u64>();
     //  assert!(delay.is_err());
     //  let delay:u64 = std::result::Result::(delay);
@@ -23,7 +22,7 @@ pub(crate) fn mili() -> Result<(), std::io::Error> {
             ));
         }
     };
-  
+
     thread::sleep(Duration::from_millis(value));
     Ok(())
 }
