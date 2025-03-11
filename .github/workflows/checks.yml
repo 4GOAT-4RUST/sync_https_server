@@ -43,6 +43,7 @@ jobs:
                 toolchain: stable
                 override: true
             - name: Running some checks on the code
+            - uses: actions-rs/toolchain@v1
               run: | 
                 cargo install cargo-check
                 cargo check --verbose
