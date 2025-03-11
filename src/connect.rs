@@ -57,7 +57,7 @@ pub fn connectivity(mut stream: TcpStream) {
                         eprintln!("Failed to write response: {}", e);
                     }
                 }
-                Err(e) => eprintln!("not possible"),
+                Err(e) => eprintln!("not possible: {}",e),
             }
         }
     }
