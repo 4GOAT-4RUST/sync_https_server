@@ -131,7 +131,7 @@ fn handle_decode<T: Write>(stream: &mut T, request: &str) {
     match base64_decode(payload) {
         Ok(decoded) => {
             let decoded_str = String::from_utf8_lossy(&decoded);
-            let response_body = format!("Decoded Message: {}\nDelay: {}", decoded_str, delay);
+            let response_body = format!("Decoded Message: {}", decoded_str); // Remove delay from response
             let content_length = response_body.len();
 
             let response = format!(
