@@ -12,7 +12,8 @@ impl Worker {
         let thread = thread::spawn(move || loop {
             let message = match receiver.lock() {
                 Ok(val) => {val},
-                Err(e) => {eprintln!("Error: {}",e)},
+                Err(e) => {eprintln!("Error: {}",e);
+            return;},
             }
             .recv();
 
