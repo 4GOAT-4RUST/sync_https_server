@@ -7,15 +7,20 @@ pub struct Worker {
 pub type Job = Box<dyn FnOnce() + Send + 'static>;
 
 impl Worker {
+    /// The worker gets a job from the pool and executes and send the response back to the thread
     pub fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Job>>>) -> Worker {
         let thread = thread::spawn(move || loop {
-            let message = receiver.lock().unwrap().recv();
+            let message = match receiver.lock() {
+                Ok(val) => {val},
+                Err(e) => {eprintln!("Error: {}",e)},
+            }
+            .recv();
 
             match message {
                 Ok(job) => {
                     println!("Worker {id} got a job; executing.");
 
-                    job();
+                    job();// This function executes the job and sends the response to the next thread
                 }
                 Err(_) => {
                     println!("Worker {id} disconnected; shutting down.");
@@ -35,8 +40,6 @@ impl Worker {
     }
 }
 
-#[test]
-fn test_worker(){
 
-}
+
 
