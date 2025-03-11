@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY ..
 
-RUN cargo build --release
+RUN cargo test --release && cargo build --release
 
 FROM debian:latest
 
