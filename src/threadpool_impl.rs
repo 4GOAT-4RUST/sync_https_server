@@ -1,6 +1,4 @@
-use std::
-    sync::{mpsc, Arc, Mutex}
-;
+use std::sync::{mpsc, Arc, Mutex};
 
 use crate::worker::{Job, Worker};
 
