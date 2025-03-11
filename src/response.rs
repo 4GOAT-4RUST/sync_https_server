@@ -1,8 +1,11 @@
 use std::io::Write;
 
-// Error Handling Respond
-pub fn send_response(stream: &mut std::net::TcpStream, response: &str) {
+pub fn send_response<T: Write>(stream: &mut T, response: &str) {
     if let Err(e) = stream.write_all(response.as_bytes()) {
-        eprintln!("Failed to send response: {}", e);
+        eprintln!("Error writing response: {}", e);
+    }
+    
+    if let Err(e) = stream.flush() {
+        eprintln!("Error flushing response: {}", e);
     }
 }
