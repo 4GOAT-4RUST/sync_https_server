@@ -1,7 +1,4 @@
 use std::sync::mpsc;
-use std::sync::Arc;
-use std::sync::Mutex;
-use std::thread;
 use std::time::Duration;
 use sync_https_server::threadpool_impl::ThreadPool;
 
