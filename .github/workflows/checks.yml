@@ -1,93 +1,94 @@
+name: Rust CI
+
 on:
-    push: 
-        branches:
-            - main  # Trigger the workflow when pushing to the main branch
-            - dev   # Trigger the workflow when pushing to the dev branch
-            - "**"
-    pull_request:
-        branches:
-            - main  # Trigger on pull requests targeting the main branch
-            - dev   # Trigger on pull requests targeting the dev branch
-            
+  push:
+    branches:
+      - main  # Trigger the workflow when pushing to the main branch
+      - dev   # Trigger the workflow when pushing to the dev branch
+      - "**"
+  pull_request:
+    branches:
+      - main  # Trigger on pull requests targeting the main branch
+      - dev   # Trigger on pull requests targeting the dev branch
 
 permissions:
-    contents: write  # Grants permission to modify repository contents
+  contents: write  # Grants permission to modify repository contents
 
 jobs:
-    checking-repo:  
-        runs-on: ubuntu-latest  # Specifies the runner environment
-        steps:
-            - name: Checkout Repository
-              uses: actions/checkout@v4  # Checks out the repository code
+  checking-repo:
+    runs-on: ubuntu-latest  # Specifies the runner environment
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4  # Checks out the repository code
 
-    caching-dependencies:
-        needs: checking-repo  # Ensures this job runs after checking-repo
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout Repository
-              uses: actions/checkout@v4  # Ensures repository is available
-            - name: Caching Dependencies
-              uses: actions/cache@v4  # Caches dependencies to speed up builds
-              with:
-                path: |
-                  ~/.cargo/bin/
-                  ~/.cargo/registry/index/
-                  ~/.cargo/registry/cache/
-                  ~/.cargo/.git/db/
-                  target
-                key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-                restore-keys: |
-                  ${{ runner.os }}-cargo-
+  caching-dependencies:
+    needs: checking-repo  # Ensures this job runs after checking-repo
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4  # Ensures repository is available
+      - name: Caching Dependencies
+        uses: actions/cache@v4  # Caches dependencies to speed up builds
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/.git/db/
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
 
-    checking-code:
-        needs: [checking-repo, caching-dependencies]  # Runs after checking-repo and caching
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout Repository
-              uses: actions/checkout@v4
-            - name: Set up Rust
-              uses: actions-rs/toolchain@v1
-              with: 
-                toolchain: stable
-                override: true
-            - name: Running Cargo Checks
-              run: | 
-                cargo install cargo-check  # Installs cargo-check for linting
-                cargo check --verbose  # Checks the code for errors
-                cargo test --verbose  # Runs tests
+  checking-code:
+    needs: [checking-repo, caching-dependencies]  # Runs after checking-repo and caching
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@master  # Updated action for Rust toolchain
+        with:
+          toolchain: stable
+          override: true
+      - name: Running Cargo Checks
+        run: |
+          cargo install cargo-check  # Installs cargo-check for linting
+          cargo check --verbose  # Checks the code for errors
+          cargo test --verbose  # Runs tests
 
-    clippy-and-formatting:
-        needs: checking-repo  # Ensures repository is available before running
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout Repository
-              uses: actions/checkout@v4
-            - name: Set up Rust
-              uses: actions-rs/toolchain@v1
-              with:
-                toolchain: stable
-            - name: Install Clippy & Format
-              run: rustup component add clippy rustfmt  # Adds Clippy and Rustfmt
-            - name: Run cargo fmt
-              run: cargo fmt -- --check  # Checks if the code is properly formatted
-            - name: Run cargo clippy
-              run: cargo clippy -- -D warnings  # Runs Clippy and treats warnings as errors
+  clippy-and-formatting:
+    needs: checking-repo  # Ensures repository is available before running
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@master  # Updated action for Rust toolchain
+        with:
+          toolchain: stable
+      - name: Install Clippy & Format
+        run: rustup component add clippy rustfmt  # Adds Clippy and Rustfmt
+      - name: Run cargo fmt
+        run: cargo fmt -- --check  # Checks if the code is properly formatted
+      - name: Run cargo clippy
+        run: cargo clippy -- -D warnings  # Runs Clippy and treats warnings as errors
 
-    security_audit:
-        needs: checking-repo  # Runs after the repository is checked out
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
-            - name: Set up Rust
-              uses: actions-rs/toolchain@v1
-              with:
-                toolchain: stable
-                profile: minimal
-                override: true
-            - name: Install cargo-audit
-              run: cargo install cargo-audit  # Installs cargo-audit for security checks
-            - name: Run cargo audit
-              run: cargo audit  # Runs security audit for dependencies
-              env:
-                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  security_audit:
+    needs: checking-repo  # Runs after the repository is checked out
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@master  # Updated action for Rust toolchain
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+      - name: Install cargo-audit
+        run: cargo install cargo-audit  # Installs cargo-audit for security checks
+      - name: Run cargo audit
+        run: cargo audit  # Runs security audit for dependencies
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
