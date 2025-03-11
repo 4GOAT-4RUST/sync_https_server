@@ -5,11 +5,10 @@ use std::{
 };
 pub fn listener() {
     let listener = match TcpListener::bind("127.0.0.1:8080") {
-        // let listener = TcpListener::bind("127.0.0.1:8080").unwrap
-        Ok(tcp_listener) => tcp_listener,
+        Ok(tcp_listener) => tcp_listener, // Successfully binds
         Err(e) => {
-            eprintln!("failed to initialise listener: {}", e);
-            std::process::exit(1);
+            eprintln!("Error binding to port: {}", e);
+            return;
         }
     };
     println!("Server listening on 127.0.0.1:7800");
