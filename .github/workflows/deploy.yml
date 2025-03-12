@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read  # Allow read access to the repository contents
-      packages: write # Allow write access to the GitHub Packages
+      packages: write # Allow write access to GitHub Packages
 
     steps:
     - name: Check out the repository
@@ -32,15 +32,12 @@ jobs:
       uses: docker/setup-buildx-action@v2
 
     - name: Build and push Docker image
-      uses: docker/build-push-action@v3
-      with:
-        context: .
-        file: ./Dockerfile
-        platforms: linux/amd64,linux/arm64
-        tags: |
-          ghcr.io/${{ vars.REPOSITORY }}/sync_https_server:sha-${{ github.sha }}
-          ghcr.io/${{ vars.REPOSITORY }}/sync_https_server:branch-${{ github.ref_name }}
-          ghcr.io/${{ vars.REPOSITORY }}/sync_https_server:latest
-        push: true
-
-   
+      run: |
+        TAG_NAME="${GITHUB_REF_NAME//\//-}"
+        docker buildx build \
+          --file ./Dockerfile \
+          --iidfile /tmp/docker-build-push-BQyhCI/iidfile \
+          --platform linux/amd64,linux/arm64 \
+          --tag ghcr.io/4goat-4rust/sync_https_server:sha-${GITHUB_SHA} \
+          --tag ghcr.io/4goat-4rust/sync_https_server:${TAG_NAME} \
+          --push
