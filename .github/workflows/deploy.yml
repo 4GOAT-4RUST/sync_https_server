@@ -22,7 +22,7 @@ jobs:
           uses: docker/login-action@v2
           with:
             registry: ghcr.io
-            username: ${{ github.actor }}  # Use the TOKEN secret for the username
+            username: ${{ vars.REPOSITORY }}  # Use the TOKEN secret for the username
             password: ${{ secrets.GITHUB_TOKEN }}  # Use the GITHUB_TOKEN secret for the password
     
         - name: Build and push Docker image
@@ -32,18 +32,18 @@ jobs:
             push: true
             platforms: linux/amd64,linux/arm64
             tags: |
-              ghcr.io/${{ github.actor }}/sync_https_server:sha-${{ github.sha }}
-              ghcr.io/${{ github.actor }}/sync_https_server:branch-${{ github.ref_name }}
-              ghcr.io/${{ github.actor }}/sync_https_server:latest
+              ghcr.io/${{ vars.REPOSITORY }}/sync_https_server:sha-${{ github.sha }}
+              ghcr.io/${{ vars.REPOSITORY }}/sync_https_server:branch-${{ github.ref_name }}
+              ghcr.io/${{ vars.REPOSITORY }}/sync_https_server:latest
     
         - name: Slim Docker image
           uses: kitabisa/docker-slim-action@v1
           env:
             DSLIM_HTTP_PROBE: "false"  # Disables HTTP probing during slimming
           with:
-            target: ghcr.io/${{ secrets.GIHUB_TOKEN }}/sync_https_server:latest  # Target image to slim
+            target: ghcr.io/${{ vars.REPOSITORY }}/sync_https_server:latest  # Target image to slim
             tag: slim  # Suffix for the slimmed image tag
     
         - name: Push slimmed Docker image
           run: |
-            docker push ghcr.io/${{ secrets.GITHUB_TOKEN }}/sync_https_server:slim
+            docker push ghcr.io/${{ vars.REPOSITORY }}/sync_https_server:slim
