@@ -4,8 +4,8 @@ on:
         branches:
             - main
             - dev
-            
-    pull-request:
+
+    pull_request:
         branches:
             - dev
 
