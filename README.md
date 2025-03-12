@@ -28,8 +28,8 @@ cd sync_https_server
 The unit test that is testing of each function and intergration tests that is test for different functionality of the code were carried out automatically in ci/cd pipeline and here are some screenshot of the tests carried:
  
 **1.Unit tests**
-![Test](/src/image1.png)
-![Test](/src/image2.png)
+![Test](/images/image1.png)
+![Test](/images/image2.png)
 
 **2.Intergration tests**
 ---
@@ -69,14 +69,14 @@ You can also get the image of this project from ghcr.
 
 ✅ Examples of running docker container
 
-![Test](./Screenshot%20from%202025-03-12%2009-19-06.png)
+![Test](images/Screenshot%20from%202025-03-12%2009-19-06.png)
 
 ❌ Examples of failed project runs
 
-![Failed](./Screenshot%20from%202025-03-12%2010-00-57.png)
+![Failed](images/Screenshot%20from%202025-03-12%2010-00-57.png)
 
 Another one
 
-![Failed](./Screenshot%20from%202025-03-12%2010-01-07.png)
+![Failed](images/Screenshot%20from%202025-03-12%2010-01-07.png)
 
 
