@@ -40,4 +40,5 @@ jobs:
           --platform linux/amd64,linux/arm64 \
           --tag ghcr.io/4goat-4rust/sync_https_server:sha-${GITHUB_SHA} \
           --tag ghcr.io/4goat-4rust/sync_https_server:${TAG_NAME} \
-          --push
+          --push \
+          .
