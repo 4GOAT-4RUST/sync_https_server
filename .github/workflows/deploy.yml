@@ -4,6 +4,10 @@ on:
         branches:
             - main
             - dev
+            
+    pull-request:
+        branches:
+            - dev
 
 jobs:
     checking-repo:
