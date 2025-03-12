@@ -1,3 +1,4 @@
+name: Deploy workflow
 on:
     push: 
         branches:
@@ -9,3 +10,5 @@ jobs:
         steps:
             - name: Checkout Repository
               uses: actions/checkout@v4
+
+             
