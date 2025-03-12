@@ -14,8 +14,8 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
-      contents: read  # Allow read access to the repository contents
-      packages: write # Allow write access to GitHub Packages
+      contents: read
+      packages: write
 
     steps:
     - name: Check out the repository
@@ -36,7 +36,6 @@ jobs:
         TAG_NAME="${GITHUB_REF_NAME//\//-}"
         docker buildx build \
           --file ./Dockerfile \
-          --iidfile /tmp/docker-build-push-BQyhCI/iidfile \
           --platform linux/amd64,linux/arm64 \
           --tag ghcr.io/4goat-4rust/sync_https_server:sha-${GITHUB_SHA} \
           --tag ghcr.io/4goat-4rust/sync_https_server:${TAG_NAME} \
