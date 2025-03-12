@@ -5,19 +5,42 @@ on:
     branches:
       - main
       - dev
+  pull_request:
+    branches:
+      - dev
+      - main
 
 jobs:
-  build:
+  build-and-push:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read  # Allow read access to the repository contents
+      packages: write # Allow write access to the GitHub Packages
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+    - name: Check out the repository
+      uses: actions/checkout@v3
 
-      - name: Log in to GitHub Container Registry
-        run: echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+    - name: Log in to GitHub Container Registry
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build Docker image
-        run: docker build -t ghcr.io/4goat-4rust/sync_https_server:latest .
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
 
-      - name: Push Docker image
-        run: docker push ghcr.io/4goat-4rust/sync_https_server:latest
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v3
+      with:
+        context: .
+        file: ./Dockerfile
+        platforms: linux/amd64,linux/arm64
+        tags: |
+          ghcr.io/${{ vars.REPOSITORY }}/sync_https_server:sha-${{ github.sha }}
+          ghcr.io/${{ vars.REPOSITORY }}/sync_https_server:branch-${{ github.ref_name }}
+          ghcr.io/${{ vars.REPOSITORY }}/sync_https_server:latest
+        push: true
+
+   
