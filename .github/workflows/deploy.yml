@@ -10,7 +10,7 @@ jobs:
       runs-on: ubuntu-latest
       permissions:
         packages: read-all
-        packages: write-all   # Grant permission to write to GHCR
+         # Grant permission to write to GHCR
     
       steps:
         - name: Checkout code
