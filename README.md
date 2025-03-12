@@ -37,10 +37,11 @@ git remote add origin https://github.com/4GOAT-4RUST/sync_https_server.git
 ```
 # ✅✅✅  Testing  Web Server 
 
-The unit test that is testing of each function and intergration tests that is test for different functionality of the code were carried out automatically in 
-ci/cd pipeline and here are some screenshot of the test carried:
-
+The unit test that is testing of each function and intergration tests that is test for different functionality of the code were carried out automatically in ci/cd pipeline and here are some screenshot of the tests carried:
+ 
+**1.Unit tests**
 ![Test](/src/image1.png)
 ![Test](/src/image2.png)
 
+**2.Intergration tests**
 ---
