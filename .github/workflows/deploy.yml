@@ -5,7 +5,8 @@ on:
             - dev
 
 jobs:
-    checking-repo:  
+    checking-repo:
+        runs-on: ubuntu-latest
         steps:
             - name: Checkout Repository
               uses: actions/checkout@v4
