@@ -70,6 +70,7 @@ You can also get the image of this project from ghcr.
 ✅ Examples of running docker container
 
 ![Test](images/Screenshot%20from%202025-03-12%2009-19-06.png)
+![Test](images/Screenshot%20from%202025-03-12%2011-58-21.png)
 
 ❌ Examples of failed project runs
 
