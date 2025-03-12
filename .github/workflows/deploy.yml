@@ -6,9 +6,22 @@ on:
             - dev
 
 jobs:
-    checking-repo:  
+    checking-repo:
+        runs-on: ubuntu-latest
         steps:
             - name: Checkout Repository
               uses: actions/checkout@v4
+              
+            - name: Slim Docker image
+              uses: kitabisa/docker-slim-action@v1
+              env:
+                DSLIM_HTTP_PROBE: "false"  # Disables HTTP probing during slimming
+                with:
+                target: ghcr.io/${{ secrets.TOKEN  }}/sync_https_server:latest  # Target image to slim
+                tag: slim  # Suffix for the slimmed image tag
 
-             
+            - name: Push slimmed Docker image
+              run: |
+                docker push ghcr.io/${{ secrets.TOKEN }}/sync_https_server:slim
+            
+
