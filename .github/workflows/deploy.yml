@@ -32,9 +32,9 @@ jobs:
             push: true
             platforms: linux/amd64,linux/arm64
             tags: |
-              ghcr.io/${{ secrets.TOKEN }}/sync_https_server:sha-${{ github.sha }}
-              ghcr.io/${{ secrets.TOKEN }}/sync_https_server:branch-${{ github.ref_name }}
-              ghcr.io/${{ secrets.TOKEN }}/sync_https_server:latest
+              ghcr.io/${{ github.actor }}/sync_https_server:sha-${{ github.sha }}
+              ghcr.io/${{ github.actor }}/sync_https_server:branch-${{ github.ref_name }}
+              ghcr.io/${{ github.actor }}/sync_https_server:latest
     
         - name: Slim Docker image
           uses: kitabisa/docker-slim-action@v1
