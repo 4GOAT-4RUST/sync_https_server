@@ -71,4 +71,12 @@ You can also get the image of this project from ghcr.
 
 ![Test](./Screenshot%20from%202025-03-12%2009-19-06.png)
 
+❌ Examples of failed project runs
+
+![Failed](./Screenshot%20from%202025-03-12%2010-00-57.png)
+
+Another one
+
+![Failed](./Screenshot%20from%202025-03-12%2010-01-07.png)
+
 
