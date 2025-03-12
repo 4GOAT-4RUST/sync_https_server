@@ -9,6 +9,7 @@ jobs:
      # Fixed job dependency
       runs-on: ubuntu-latest
       permissions:
+        contents: read
         packages: write
          # Grant permission to write to GHCR
     
@@ -30,12 +31,12 @@ jobs:
           uses: docker/build-push-action@v3
           with:
             context: .
-            push: true
             platforms: linux/amd64,linux/arm64
             tags: |
               ghcr.io/${{ vars.REPOSITORY }}/sync_https_server:sha-${{ github.sha }}
               ghcr.io/${{ vars.REPOSITORY }}/sync_https_server:branch-${{ github.ref_name }}
               ghcr.io/${{ vars.REPOSITORY }}/sync_https_server:latest
+            push: true
     
         - name: Slim Docker image
           uses: kitabisa/docker-slim-action@v1
