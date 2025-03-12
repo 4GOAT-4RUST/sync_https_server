@@ -9,7 +9,8 @@ jobs:
      # Fixed job dependency
       runs-on: ubuntu-latest
       permissions:
-        packages: read | write   # Grant permission to write to GHCR
+        packages: read-all
+        packages: write-all   # Grant permission to write to GHCR
     
       steps:
         - name: Checkout code
