@@ -3,7 +3,7 @@ use std::net::TcpListener;
 use crate::{query::handle_client, threadpool_impl::ThreadPool};
 
 pub fn listener() {
-    let listener = match TcpListener::bind("0.0.0.0:8080") {
+    let listener = match TcpListener::bind("127.0.0.1:8080") {
         Ok(tcp_listener) => tcp_listener, // Successfully binds
         Err(e) => {
             eprintln!("Error binding to port: {}", e);
