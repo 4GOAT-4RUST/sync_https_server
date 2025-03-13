@@ -39,13 +39,14 @@ jobs:
 
     - name: Build and push Docker image
       run: |
-        TAG_NAME="${GITHUB_REF_NAME//\//-}"
-        docker buildx build \
+          REPO_NAME=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          TAG_NAME="${GITHUB_REF_NAME//\//-}"
+          
+          docker buildx build \
           --file ./Dockerfile \
           --platform linux/amd64,linux/arm64 \
-          --tag ghcr.io/${{ github.repository }}:sha-${GITHUB_SHA} \
-          --tag ghcr.io/${{ github.repository }}:${TAG_NAME} \
-          --label "org.opencontainers.image.source=${{ github.repositoryUrl }}" \
-          --label "org.opencontainers.image.description=Automatically built package from repository" \
+          --tag ghcr.io/${REPO_NAME}:sha-${GITHUB_SHA} \
+          --tag ghcr.io/${REPO_NAME}:${TAG_NAME} \
           --push \
           .
+    
