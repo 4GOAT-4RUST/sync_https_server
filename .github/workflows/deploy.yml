@@ -59,7 +59,7 @@ jobs:
             with:
               context: .
               push: true
-              tags: |
+              tags: | 
                 ghcr.io/${{  secrets.REP_TOKEN  }}/sync_https_server:sha-${{ github.sha }}
                 ghcr.io/${{  secrets.REP_TOKEN   }}/sync_https_server:branch-${{ github.ref_name }}
                 ghcr.io/${{  secrets.REP_TOKEN   }}/sync_https_server:latest
