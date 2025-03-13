@@ -39,14 +39,13 @@ jobs:
 
     - name: Build and push Docker image
       run: |
-          REPO_NAME=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          REPO_NAME="ghcr.io/$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')/$(echo "${{ github.event.repository.name }}" | tr '[:upper:]' '[:lower:]')"
           TAG_NAME="${GITHUB_REF_NAME//\//-}"
           
           docker buildx build \
           --file ./Dockerfile \
           --platform linux/amd64,linux/arm64 \
-          --tag ghcr.io/${REPO_NAME}:sha-${GITHUB_SHA} \
-          --tag ghcr.io/${REPO_NAME}:${TAG_NAME} \
+          --tag ${REPO_NAME}:sha-${GITHUB_SHA} \
+          --tag ${REPO_NAME}:${TAG_NAME} \
           --push \
           .
-    
