@@ -52,7 +52,7 @@ jobs:
             with:  
               registry: ghcr.io 
               username: ${{ secrets.TOKEN }}
-              password: ${{ secrets.REP_TOKEN}}
+              password: ${{ secrets.REP_TOKEN }}
               
           - name: Build and push Docker image
             uses: docker/build-push-action@v6
@@ -60,9 +60,9 @@ jobs:
               context: .
               push: true
               tags: |
-                ghcr.io/${{ secrets.TOKEN  }}/sync_https_server:sha-${{ github.sha }}
-                ghcr.io/${{ secrets.TOKEN   }}/sync_https_server:branch-${{ github.ref_name }}
-                ghcr.io/${{ secrets.TOKEN   }}/sync_https_server:latest
+                ghcr.io/${{  secrets.REP_TOKEN  }}/sync_https_server:sha-${{ github.sha }}
+                ghcr.io/${{  secrets.REP_TOKEN   }}/sync_https_server:branch-${{ github.ref_name }}
+                ghcr.io/${{  secrets.REP_TOKEN   }}/sync_https_server:latest
               platform: linux/${{ matrix.architecture }}
 
           - name: Slim Docker image
@@ -70,11 +70,11 @@ jobs:
             env:
               DSLIM_HTTP_PROBE: "false"  # Disables HTTP probing during slimming
             with:
-              target: ghcr.io/${{ secrets.TOKEN  }}/sync_https_server:latest  # Target image to slim
+              target: ghcr.io/${{ secrets.REP_TOKEN  }}/sync_https_server:latest  # Target image to slim
               tag: slim  # Suffix for the slimmed image tag
   
           - name: Push slimmed Docker image
             run: |
-              docker push ghcr.io/${{ secrets.TOKEN }}/sync_https_server:slim
+              docker push ghcr.io/${{  secrets.REP_TOKEN }}/sync_https_server:slim
             
 
