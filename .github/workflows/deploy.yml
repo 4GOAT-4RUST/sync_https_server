@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write
+      packages: write  # Grant permission to publish packages
 
     steps:
     - name: Check out the repository
@@ -31,13 +31,21 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
 
+    - name: Extract metadata (tags, labels) for Docker
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ghcr.io/${{ github.repository }}
+
     - name: Build and push Docker image
       run: |
         TAG_NAME="${GITHUB_REF_NAME//\//-}"
         docker buildx build \
           --file ./Dockerfile \
           --platform linux/amd64,linux/arm64 \
-          --tag ghcr.io/4goat-4rust/sync_https_server:sha-${GITHUB_SHA} \
-          --tag ghcr.io/4goat-4rust/sync_https_server:${TAG_NAME} \
+          --tag ghcr.io/${{ github.repository }}:sha-${GITHUB_SHA} \
+          --tag ghcr.io/${{ github.repository }}:${TAG_NAME} \
+          --label "org.opencontainers.image.source=${{ github.repositoryUrl }}" \
+          --label "org.opencontainers.image.description=Automatically built package from repository" \
           --push \
           .
