@@ -1,5 +1,4 @@
 use std::io::{self, Cursor, Read, Write};
-
 use sync_https_server::query::handle_client;
 
 // Mock implementation of a TCP stream using an in-memory buffer

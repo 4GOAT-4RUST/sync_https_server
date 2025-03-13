@@ -1,3 +1,4 @@
+
 name: CI
 on: 
  push:
@@ -76,3 +77,4 @@ jobs:
             run: |
               docker push ghcr.io/${{ secrets.TOKEN }}/sync_https_server:slim
             
+
