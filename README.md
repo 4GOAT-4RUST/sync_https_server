@@ -37,13 +37,10 @@ The unit test that is testing of each function and intergration tests that is te
 # ✨ How It Works And How You Can Use ✨
 
  ## 1. How it works 
-
-    This projects builds a program that extracts an encode message which is found in the  payload  of a request and the delay also and then convert the payload to using 256 character encoding . 
-    
-    It then delays for the amount of delay in the request and then send the Result after that time delayed.
-
-    The server can then receive any number of request and handle the execution of the processes simultaneously and in a threadpool of max size 8 thread . The other request are kept in a queue where they wait for a worker to become free.  
-
+   This projects builds a program that extracts an encode message which is found in the  payload  of a request and the delay also and then convert the payload to using 256 character encoding . 
+   
+   It then delays for the amount of delay in the request and then send the Result after that time delayed.
+   The server can then receive any number of request and handle the execution of the processes simultaneously and in a threadpool of max size 8 thread . The other request are kept in a queue where they wait for a worker to become free.  
 
  ## 2. How to use it 
 ### 📌 By Using Our Dockerfile
