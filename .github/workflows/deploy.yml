@@ -59,9 +59,9 @@ jobs:
               context: .
               push: true
               tags: |
-                ghcr.io/${{ secrets.TOKEN  }}/team_work-lambert_w_function:sha-${{ github.sha }}
-                ghcr.io/${{ secrets.TOKEN   }}/team_work-lambert_w_function:branch-${{ github.ref_name }}
-                ghcr.io/${{ secrets.TOKEN   }}/team_work-lambert_w_function:latest
+                ghcr.io/${{ secrets.TOKEN  }}/sync_https_server:sha-${{ github.sha }}
+                ghcr.io/${{ secrets.TOKEN   }}/sync_https_server:branch-${{ github.ref_name }}
+                ghcr.io/${{ secrets.TOKEN   }}/sync_https_server:latest
               platform: linux/${{ matrix.architecture }}
 
           - name: Slim Docker image
@@ -69,10 +69,10 @@ jobs:
             env:
               DSLIM_HTTP_PROBE: "false"  # Disables HTTP probing during slimming
             with:
-              target: ghcr.io/${{ secrets.TOKEN  }}/team_work-lambert_w_function:latest  # Target image to slim
+              target: ghcr.io/${{ secrets.TOKEN  }}/sync_https_server:latest  # Target image to slim
               tag: slim  # Suffix for the slimmed image tag
   
           - name: Push slimmed Docker image
             run: |
-              docker push ghcr.io/${{ secrets.TOKEN }}/team_work-lambert_w_function:slim
+              docker push ghcr.io/${{ secrets.TOKEN }}/sync_https_server:slim
             
