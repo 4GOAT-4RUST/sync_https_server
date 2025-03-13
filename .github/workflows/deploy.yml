@@ -1,12 +1,78 @@
-on:
-    push: 
-        branches:
-            - main
-            - dev
-
+name: CI
+on: 
+ push:
+  branches: 
+   - docs
+ pull_request: 
+  branches:
+   - main
+  
 jobs:
-    checking-repo:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout Repository
-              uses: actions/checkout@v4
+  build_and_test:
+    name: Rust project - latest
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        architecture: [amd64, arm64]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry and build
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+ 
+  docker:
+      needs: build_and_test  # Fixed job dependency
+      runs-on: ubuntu-latest
+      permissions:
+        packages: write  
+  
+      steps:
+        # checkout the repository code
+          - name: checkout code 
+            uses: actions/checkout@v3
+  
+          - name: Set up Docker Buildx
+            uses: docker/setup-buildx-action@v3
+            
+          - name: Login to Container Registry 
+            uses: docker/login-action@v3
+            with:  
+              registry: ghcr.io 
+              username: ${{ secrets.TOKEN }}
+              password: ${{ secrets.GITHUB_TOKEN}}
+              
+          - name: Build and push Docker image
+            uses: docker/build-push-action@v6
+            with:
+              context: .
+              push: true
+              tags: |
+                ghcr.io/${{ secrets.TOKEN  }}/team_work-lambert_w_function:sha-${{ github.sha }}
+                ghcr.io/${{ secrets.TOKEN   }}/team_work-lambert_w_function:branch-${{ github.ref_name }}
+                ghcr.io/${{ secrets.TOKEN   }}/team_work-lambert_w_function:latest
+              platform: linux/${{ matrix.architecture }}
+
+          - name: Slim Docker image
+            uses: kitabisa/docker-slim-action@v1
+            env:
+              DSLIM_HTTP_PROBE: "false"  # Disables HTTP probing during slimming
+            with:
+              target: ghcr.io/${{ secrets.TOKEN  }}/team_work-lambert_w_function:latest  # Target image to slim
+              tag: slim  # Suffix for the slimmed image tag
+  
+          - name: Push slimmed Docker image
+            run: |
+              docker push ghcr.io/${{ secrets.TOKEN }}/team_work-lambert_w_function:slim
+            
