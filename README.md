@@ -1,7 +1,3 @@
-Here’s a more **polished and professional** version of your document:  
-
----
-
 # 🚀 **Building a Web Server**  
 
 ## **📌 Overview**  
@@ -12,72 +8,94 @@ This web server is designed to **handle incoming requests** and send responses b
 ✅ **Configurable delay** – The server introduces a delay before responding.  
 ✅ **Thread-safe queue** – Manages incoming requests efficiently.  
 
----
+---  
 
 # 🛠️ **Project Setup**  
 
 ### **📥 Cloning Our Repository**  
-To have this project locally , run the following commands:  
-```sh
-git clone https://github.com/4GOAT-4RUST/sync_https_server.git
-cd sync_https_server
+To have this project locally, run the following commands:  
+```sh  
+git clone https://github.com/4GOAT-4RUST/sync_https_server.git  
+cd sync_https_server  
 ```
 
-# ✅✅✅  Testing  Web Server 
-
-The unit test that is testing of each function and intergration tests that is test for different functionality of the code were carried out automatically in ci/cd pipeline and here are some screenshot of the tests carried:
- 
-**1.Unit tests**
-![Test](/images/image1.png)
-![Test](/images/image2.png)
-
-**2.Intergration tests**
 ---
 
-# ✨ How It Works And How You Can Use ✨
+# ✅✅✅  Testing Web Server  
 
- ## 1. How it works 
+Unit tests (testing of each function) and integration tests (testing different functionalities of the code) were carried out automatically in the CI/CD pipeline. Here are some screenshots of the tests:  
 
-    This projects builds a program that extracts an encode message which is found in the  payload  of a request and the delay also and then convert the payload to using 256 character encoding . 
-    
-    It then delays for the amount of delay in the request and then send the Result after that time delayed.
+### **1. Unit tests**  
+![Test](/images/image1.png)  
+![Test](/images/image2.png)  
 
-    The server can then receive any number of request and handle the execution of the processes simultaneously and in a threadpool of max size 8 thread . The other request are kept in a queue where they wait for a worker to become free.  
+### **2. Integration tests**  
+---  
 
+# ✨ How It Works And How You Can Use ✨  
 
- ## 2. How to use it 
-### 📌 By Using Our Dockerfile
+## **1. How It Works**  
 
-After cloning the repo you can just simply build the docker file and run the image using
-***_Buildingg Image_*** 
-```sh
-cd sync_https_server
-docker build -t sync_https_server .
+This project builds a program that extracts an encoded message found in the **payload** of a request and the **delay** value. It then converts the payload using **256-character encoding**.  
+
+It introduces a delay based on the request and then sends the result after the delay.  
+
+The server can receive multiple requests and handle execution concurrently using a **thread pool of max size 8 threads**. Other requests are **queued** and processed when a worker becomes available.  
+
+## **2. How to Use It**  
+
+### 📌 **Running the Server Using Docker**  
+
+#### **A. By Building the Docker Image Locally**  
+After cloning the repo, you can build the Dockerfile and run the image using:  
+
+***_Building the Image_***  
+```sh  
+cd sync_https_server  
+docker build -t sync_https_server .  
 ```
-***_Running Image_***
-```sh
-docker run --rm sync_https_server
-```
-On another terminal run 
-```sh
- curl -X POST -d "payload=SGVsbG8ui29ywGQ=" -d "delay=5" http://127.0.0.1:8080/decode
+
+***_Running the Image_***  
+```sh  
+docker run --rm -p 8080:8080 sync_https_server  
 ```
 
-📌 Using Our GHCR
+On another terminal, run:  
+```sh  
+curl -X POST -d "payload=SGVsbG8ui29ywGQ=" -d "delay=5" http://127.0.0.1:8080/decode  
+```
 
-You can also get the image of this project from ghcr.
+#### **B. Pulling and Running the Image from GitHub Container Registry (GHCR)**  
+Instead of building locally, you can pull the pre-built image from GHCR:  
 
-✅ Examples of running docker container
+***_Pulling the Image_***  
+```sh  
+docker pull ghcr.io/4goat-4rust/sync_https_server:latest  
+```
 
-![Test](images/Screenshot%20from%202025-03-12%2009-19-06.png)
-![Test](images/Screenshot%20from%202025-03-12%2011-58-21.png)
+***_Running the Image_***  
+```sh  
+docker run --rm -p 8080:8080 ghcr.io/4goat-4rust/sync_https_server:latest  
+```
 
-❌ Examples of failed project runs
+---  
 
-![Failed](images/Screenshot%20from%202025-03-12%2010-00-57.png)
+### ✅ **Examples of Running Docker Container**  
 
-Another one
+![Test](images/Screenshot%20from%202025-03-12%2009-19-06.png)  
+![Test](images/Screenshot%20from%202025-03-12%2011-58-21.png)  
 
-![Failed](images/Screenshot%20from%202025-03-12%2010-01-07.png)
+---  
 
+### ❌ **Examples of Failed Project Runs**  
+
+![Failed](images/Screenshot%20from%202025-03-12%2010-00-57.png)  
+
+Another one:  
+
+![Failed](images/Screenshot%20from%202025-03-12%2010-01-07.png)  
+
+---  
+
+Now, whether you **build the image locally** or **pull it from GHCR**, you can easily run the web server with Docker! 🚀  
 
