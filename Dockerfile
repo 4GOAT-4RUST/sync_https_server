@@ -14,7 +14,7 @@ WORKDIR /app
 
 RUN apk add --no-cache libgcc
 
-EXPOSE 80
+EXPOSE 8080
 # RUN apt-get update && apt-get install libssl-dev
 
 COPY --from=builder /app/target/release/sync_https_server /app/sync_https_server
