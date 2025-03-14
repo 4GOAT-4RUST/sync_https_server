@@ -56,11 +56,12 @@ docker build -t sync_https_server .
 ```
 
 ***_Running the Image_***  
+Ensure that your have docker running on the machine you are running this command .
 ```sh  
-docker run --rm -p 8080:8080 sync_https_server  
+docker run --rm -p 8080:8080 sync_https_server:slim  
 ```
 
-On another terminal, run:  
+On another terminal, run this command to send a request to the server with a desired payload and delay:  
 ```sh  
 curl -X POST -d "payload=SGVsbG8ui29ywGQ=" -d "delay=5" http://127.0.0.1:8080/decode  
 ```
