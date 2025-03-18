@@ -64,3 +64,11 @@ curl -X POST -d "payload=SGVsbG8ui29ywGQ=" -d "delay=5" http://127.0.0.1:8080/de
 ![Test](/images/image2.png) 
 
 [For more details on this project visit our docs]()
+
+[License]()
+[About]()
+Authors
+[Jagoum](https://github.com/Jagoum)
+[Usher](https://github.com/USHER-PB)
+[Emmanuel](https://github.com/Donemmanuelo)
+[Onel](https://github.com/onelrian)
