@@ -2,8 +2,7 @@
 
 
 This web server is designed to **handle incoming requests** and send responses based on the provided **payload** and **delay**.  
-This project builds a program that extracts an encoded message found in the **payload** of a request and the **delay** value. It then converts the payload using **256-character encoding**.  
-It introduces a delay based on the request and then sends the result after the delay.  
+
 The server can receive multiple requests and handle execution concurrently using a **thread pool of max size 8 threads**. Other requests are **queued** and processed when a worker becomes available. 
 
 ### **Key Features**  

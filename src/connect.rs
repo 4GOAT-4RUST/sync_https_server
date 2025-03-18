@@ -1,6 +1,6 @@
 use std::net::TcpListener;
 
-use crate::{query::handle_client, threadpool_impl::ThreadPool};
+use crate::{query::handle_client, threadpool::ThreadPool};
 
 pub fn listener() {
     let listener = match TcpListener::bind("0.0.0.0:8080") {

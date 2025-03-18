@@ -1,6 +1,6 @@
 use std::sync::mpsc;
 use std::time::Duration;
-use sync_https_server::threadpool_impl::ThreadPool;
+use sync_https_server::threadpool::ThreadPool;
 
 #[test]
 fn test_thread_pool_creation() {
