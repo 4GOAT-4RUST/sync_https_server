@@ -1,12 +1,12 @@
 use std::sync::mpsc;
 use std::time::Duration;
-use sync_https_server::threadpool_impl::ThreadPool;
+use sync_https_server::threadpool::ThreadPool;
 
 #[test]
 fn test_thread_pool_creation() {
     let size = 4;
     let pool = ThreadPool::new(size);
-    assert_eq!(pool.workers.len(), size);
+    assert_eq!(pool.unwrap().workers.len(), size);
 }
 
 //this function test if my program is executing a single job
@@ -17,7 +17,7 @@ fn test_execute_single_job() {
 
     let (tx, rx) = mpsc::channel();
 
-    pool.execute(move || {
+    pool.unwrap().execute(move || {
         match tx.send(()) {
             Ok(_) => {
                 println!("Send with success")
@@ -48,7 +48,7 @@ fn test_execute_multiple_jobs() {
 
     let value = tx.send(());
     for _ in 0..size {
-        pool.execute(move || {
+        pool.as_ref().unwrap().execute(move || {
             match value {
                 Ok(_) => {
                     println!("Thread executing ..")
@@ -84,7 +84,7 @@ fn test_execute_with_panic() {
     let (tx, rx) = mpsc::channel();
 
     // Submit a job that panics
-    pool.execute(move || {
+    pool.unwrap().execute(move || {
         tx.send(()).unwrap();
         panic!("This job should panic");
     });
@@ -114,7 +114,8 @@ fn test_thread_pool_shutdown() {
 
     let value = tx.send(());
     for _ in 0..size {
-        pool.execute(move || {
+        match pool {
+            Ok(ref threadpool) => {threadpool.execute(move || {
             match value {
                 Ok(_) => {
                     println!("Data send !")
@@ -123,7 +124,9 @@ fn test_thread_pool_shutdown() {
                     eprintln!("Could not send data: {}", e)
                 }
             };
-        });
+        })},
+            Err(_) => {eprintln!("Failed to execute threadpool")},
+        };
     }
 
     // Drop the pool to shut down the workers
