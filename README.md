@@ -1,102 +1,66 @@
-# 🚀 **Building a Web Server**  
+#  **Multithreaded Sync Http Server**  
 
-## **📌 Overview**  
+
 This web server is designed to **handle incoming requests** and send responses based on the provided **payload** and **delay**.  
+This project builds a program that extracts an encoded message found in the **payload** of a request and the **delay** value. It then converts the payload using **256-character encoding**.  
+It introduces a delay based on the request and then sends the result after the delay.  
+The server can receive multiple requests and handle execution concurrently using a **thread pool of max size 8 threads**. Other requests are **queued** and processed when a worker becomes available. 
 
 ### **Key Features**  
-✅ **Multi-threaded request handling** – Uses threads to process requests concurrently.  
-✅ **Configurable delay** – The server introduces a delay before responding.  
-✅ **Thread-safe queue** – Manages incoming requests efficiently.  
+- **Multi-threaded request handling** – Uses threads to process requests concurrently.  
+- **Configurable delay** – The server introduces a delay before responding.  
+- **Thread-safe queue** – Manages incoming requests efficiently.  
 
 ---  
 
-# 🛠️ **Project Setup**  
-
-### **📥 Cloning Our Repository**  
+Build and Run
+-------------
+####  Cloning Our Repository
 To have this project locally, run the following commands:  
 ```sh  
 git clone https://github.com/4GOAT-4RUST/sync_https_server.git  
 cd sync_https_server  
 ```
+#### Build and Run Repo
+To build this project run the following commands
+```sh
+cargo test --verbose # to test the project
+cargo check # to check if it build correctly
+cargo build
+cargo run --release
 
----
-
-# ✅✅✅  Testing Web Server  
-
-Unit tests (testing of each function) and integration tests (testing different functionalities of the code) were carried out automatically in the CI/CD pipeline. Here are some screenshots of the tests:  
-
-### **1. Unit tests**  
-![Test](/images/image1.png)  
-![Test](/images/image2.png)  
-
-### **2. Integration tests**  
----  
-
-# ✨ How It Works And How You Can Use ✨  
-
-## **1. How It Works**  
-
-This project builds a program that extracts an encoded message found in the **payload** of a request and the **delay** value. It then converts the payload using **256-character encoding**.  
-
-It introduces a delay based on the request and then sends the result after the delay.  
-
-The server can receive multiple requests and handle execution concurrently using a **thread pool of max size 8 threads**. Other requests are **queued** and processed when a worker becomes available.  
-
-## **2. How to Use It**  
-
-### 📌 **Running the Server Using Docker**  
-
-#### **A. By Building the Docker Image Locally**  
-After cloning the repo, you can build the Dockerfile and run the image using:  
-
-***_Building the Image_***  
-```sh  
-cd sync_https_server  
-docker build -t sync_https_server .  
 ```
 
-***_Running the Image_***  
-Ensure that your have docker running on the machine you are running this command .
-```sh  
-docker run --rm -p 8080:8080 sync_https_server:slim  
+#### Run Using Docker
+
+To run this project using [docker](https://docs.docker.com/get-started/docker-overview/) you need to have [docker](https://docs.docker.com/get-started/docker-overview/) running on your local machine.
+You can either use the image on [ghcr](https://github.com/4GOAT-4RUST/sync_https_server/pkgs/container/sync_https_server) or build it locally 
+- **Using docker image**
+
+
+```sh
+docker pull ghcr.io/4goat-4rust/sync_https_server:slim 
+docker run --rm -p 8080:8080 ghcr.io/4goats-4rust/sync_https_server:slim 
+```
+
+To send a request to the server from another terminal 
+```sh
+    curl -X POST -d "payload=Q29uY3VycmVuY3kgaXMgcG93ZXJmdWw=" -d "delay=12" http://127.0.0.1:8080/decode
+```
+- **Building and running docker image locally**
+
+```sh
+    docker build -t your-image-name .
+    docker run --rm -p 8080:8080 your-image-name
 ```
 
 On another terminal, run this command to send a request to the server with a desired payload and delay:  
 ```sh  
 curl -X POST -d "payload=SGVsbG8ui29ywGQ=" -d "delay=5" http://127.0.0.1:8080/decode  
 ```
+> *NB*: Note that if you aliased docker in you in you host machine to docker in your vm use your vm IP address when sending the request to the server
 
-#### **B. Pulling and Running the Image from GitHub Container Registry (GHCR)**  
-Instead of building locally, you can pull the pre-built image from GHCR:  
+#### Integration tests  
+![Test](/images/image2.png) 
 
-***_Pulling the Image_***  
-```sh  
-docker pull ghcr.io/4goat-4rust/sync_https_server:latest  
-```
-
-***_Running the Image_***  
-```sh  
-docker run --rm -p 8080:8080 ghcr.io/4goat-4rust/sync_https_server:latest  
-```
-
----  
-
-### ✅ **Examples of Running Docker Container**  
-
-![Test](images/Screenshot%20from%202025-03-12%2009-19-06.png)  
-![Test](images/Screenshot%20from%202025-03-12%2011-58-21.png)  
-
----  
-
-### ❌ **Examples of Failed Project Runs**  
-
-![Failed](images/Screenshot%20from%202025-03-12%2010-00-57.png)  
-
-Another one:  
-
-![Failed](images/Screenshot%20from%202025-03-12%2010-01-07.png)  
-
----  
-
-Now, whether you **build the image locally** or **pull it from GHCR**, you can easily run the web server with Docker! 🚀  
-
+[For more details on this project visit our docs]()
