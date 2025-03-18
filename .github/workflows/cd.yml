@@ -4,6 +4,8 @@ on:
  push:
   branches: 
    - docs
+ pull_request:
+   - dev
  
   
 jobs:
@@ -22,9 +24,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
+            ~/.cargo/registry/
             ~/.cargo/git/db/
             target
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
@@ -33,7 +33,6 @@ jobs:
  
   docker:
       needs: build_and_test  # Fixed job dependency
-      runs-on: ubuntu-latest
       permissions:
         contents: read
         packages: write  
