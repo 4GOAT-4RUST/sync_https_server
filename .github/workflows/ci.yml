@@ -29,7 +29,7 @@ jobs:
             ${{ runner.os }}-cargo-
 
       - name: Set up Rust
-        uses: rust-lang/setup-rust-action@v1
+        uses: rust-lang/setup-rust-action@v2
         with:
           rust-version: stable
           components: clippy, rustfmt  # Installs Clippy and Rustfmt
