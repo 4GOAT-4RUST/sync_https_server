@@ -3,49 +3,77 @@ name: Rust CI
 on:
   push:
     branches:
-      - main  
-      - dev  
+      - main  # Trigger the workflow when pushing to the main branch
+      - dev   # Trigger the workflow when pushing to the dev branch
+      - "**"
   pull_request:
     branches:
-      - main 
-      - dev  
+      - main  # Trigger on pull requests targeting the main branch
+      - dev   # Trigger on pull requests targeting the dev branch
+    path:
+      - '**/Cargo.toml'
+      - '**/Cargo.lock'
+permissions:
+  contents: write  # Grants permission to modify repository contents
 
 jobs:
   checking-repo:
-    runs-on: ubuntu-latest  # Uses the latest Ubuntu runner
+    runs-on: ubuntu-latest  # Specifies the runner environment
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4  # Checks out repository code
+        uses: actions/checkout@v4  # Checks out the repository code
 
+  caching-dependencies:
+    needs: checking-repo  # Ensures this job runs after checking-repo
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4  # Ensures repository is available
       - name: Caching Dependencies
-        uses: actions/cache@v4  # Caches dependencies for faster builds
+        uses: actions/cache@v4  # Caches dependencies to speed up builds
         with:
           path: |
-            ~/.cargo/registry
-            ~/.cargo/git
+            ~/.cargo/registry/
+            ~/.cargo/.git/db/
             target
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-cargo-
 
-      - name: Set up Rust
+  checking-code:
+    needs: [checking-repo, caching-dependencies]  # Runs after checking-repo and caching
+    steps:
+      - name: Checkout Repository
         uses: actions/checkout@v4
-        uses: rust-lang/setup-rust-action@v2
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@master  # Updated action for Rust toolchain
         with:
-          rust-version: stable
-          components: clippy, rustfmt  # Installs Clippy and Rustfmt
+          toolchain: stable
+          override: true
+      - name: Running Cargo Checks
+        run: |
+          cargo install cargo-check  # Installs cargo-check for linting
+          cargo check --verbose  # Checks the code for errors
+          cargo test --verbose  # Runs tests
 
-      - name: Install cargo-audit
-        run: cargo install cargo-audit  # Ensures cargo-audit is available
+  clippy-and-formatting:
+    needs: checking-repo  # Ensures repository is available before running
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@master  # Updated action for Rust toolchain
+        with:
+          toolchain: stable
+      - name: Install Clippy & Format
+        run: rustup component add clippy rustfmt  # Adds Clippy and Rustfmt
+      - name: Run cargo fmt
+        run: cargo fmt -- --check  # Checks if the code is properly formatted
+      - name: Run cargo clippy
+        run: cargo clippy -- -D warnings  # Runs Clippy and treats warnings as errors
 
-      - name: Check Formatting
-        run: cargo fmt -- --check  # Fails if the code is not formatted
-
-      - name: Run Clippy (Linting)
-        run: cargo clippy -- -D warnings  # Treats warnings as errors
-
-      - name: Run Tests
-        run: cargo test --verbose  # Runs tests with verbose output
-
-      - name: Run Security Audit
-        run: cargo audit  # Checks for security vulnerabilities
+  security_audit:
+      - name: Run cargo-audit
+      - uses: actions/checkout@v1
+      - uses: actions-rs/audit-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
