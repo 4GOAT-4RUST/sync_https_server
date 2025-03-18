@@ -39,10 +39,6 @@ jobs:
         packages: write  
   
       steps:
-        # checkout the repository code
-          - name: checkout code 
-            uses: actions/checkout@v3
-  
           - name: Set up Docker Buildx
             uses: docker/setup-buildx-action@v3
             
@@ -63,7 +59,7 @@ jobs:
                 ghcr.io/${{  secrets.REPOSITORY   }}/sync_https_server:branch-${{ github.ref_name }}
                 ghcr.io/${{  secrets.REPOSITORY   }}/sync_https_server:latest
               platform: linux/${{ matrix.architecture }}
-
+              
           - name: Slim Docker image
             uses: kitabisa/docker-slim-action@v1
             env:

@@ -1,0 +1,55 @@
+name: Rust CI
+
+on:
+  push:
+    branches:
+      - main  
+      - dev  
+  pull_request:
+    branches:
+      - main 
+      - dev  
+
+jobs:
+  checking-repo:
+    runs-on: ubuntu-latest  # Specifies the runner environment
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4  # Checks out the repository code
+
+      - name: Caching Dependencies
+        uses: actions/cache@v4  # Caches dependencies to speed up builds
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/.git/db/
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - name: Install Clippy & Format
+        run: rustup component add clippy rustfmt  # Adds Clippy and Rustfmt
+
+      - name: Run cargo audit
+        uses: actions-rs/cargo@v1.0.0
+        with:
+          command: audit
+
+      - name: Run cargo test
+        uses: actions-rs/cargo@v1.0.0
+        with:
+          command: test
+
+      - name: Run cargo fmt
+        run: cargo fmt -- --check  # Checks if the code is properly formatted
+
+      - name: Run cargo clippy
+        run: cargo clippy -- -D warnings  # Runs Clippy and treats warnings as errors
