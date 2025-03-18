@@ -49,7 +49,7 @@ pub fn handle_client<T: Read + Write>(mut stream: T) {
     println!("Debug: Received request: {}", request);
     let mut lines = request.lines();
 
-    // Get the first line of the request (e.g., "POST /decode HTTP/1.1")
+    // Get the first line of the request (e.g., "GET /decode HTTP/1.1")
     let request_line = match lines.next() {
         Some(line) => line,
         None => {
@@ -75,7 +75,7 @@ pub fn handle_client<T: Read + Write>(mut stream: T) {
 
     // Figure out what kind of request we received
     match (parts.first(), parts.get(1)) {
-        (Some(&"POST"), Some(&"/decode")) => handle_decode(&mut stream, request),
+        (Some(&"GET"), Some(&"/decode")) => handle_decode(&mut stream, request),
         (_, Some(route)) => {
             println!("Debug: Route not found: {}", route);
             send_response(
@@ -142,8 +142,8 @@ fn handle_decode<T: Write>(stream: &mut T, request: &str) {
             println!("Debug: Successful decoding, response: {}", response);
 
             // Introduce the delay before sending the response
-            println!("Debug: Delaying response by {} seconds...", delay);
-            thread::sleep(Duration::from_secs(delay));
+            println!("Debug: Delaying response by {} Mili seconds...", delay);
+            thread::sleep(Duration::from_millis(delay));
 
             // Send the response after the delay
             send_response(stream, &response);

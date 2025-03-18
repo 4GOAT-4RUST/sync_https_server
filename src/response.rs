@@ -6,10 +6,7 @@ use std::io::Write;
 /// (such as a TCP stream) and writes the given response string to it
 /// It ensures that the response is properly flushed, so the client receives it immediately
 pub fn send_response<T: Write>(stream: &mut T, response: &str) {
-    // Convert the response string into bytes and attempt to send it over the stream
-    // `.write_all()` ensures that the entire response is written, not just part of it
     if let Err(e) = stream.write_all(response.as_bytes()) {
-        // Print an error message if writing fails
         eprintln!("Error writing response: {}", e);
     }
 
