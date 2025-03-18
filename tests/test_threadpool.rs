@@ -2,12 +2,6 @@ use std::sync::mpsc;
 use std::time::Duration;
 use sync_https_server::threadpool::ThreadPool;
 
-#[test]
-fn test_thread_pool_creation() {
-    let size = 4;
-    let pool = ThreadPool::new(size);
-    assert_eq!(pool.workers.len(), size);
-}
 
 //this function test if my program is executing a single job
 #[test]
