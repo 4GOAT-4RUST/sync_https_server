@@ -73,9 +73,9 @@ fn test_handle_client_invalid_utf8() {
 
 // Test case: Invalid 'delay' parameter (zero or missing)
 #[test]
-fn test_handle_client_post_decode_invalid_delay() {
+fn test_handle_client_get_decode_invalid_delay() {
     let request =
-        "POST /decode HTTP/1.1\r\nContent-Length: 25\r\n\r\ndelay=0&payload=SGVsbG8gd29ybGQ=";
+        "GET /decode HTTP/1.1\r\nContent-Length: 25\r\n\r\ndelay=0&payload=SGVsbG8gd29ybGQ=";
     if let Ok(Some(response)) = simulate_client_request(request) {
         assert!(response.contains("HTTP/1.1 400 Bad Request"));
         assert!(response.contains("Error: 'delay' must be a positive integer"));
@@ -84,8 +84,8 @@ fn test_handle_client_post_decode_invalid_delay() {
 
 // Test case: Missing or empty 'payload' parameter
 #[test]
-fn test_handle_client_post_decode_invalid_payload() {
-    let request = "POST /decode HTTP/1.1\r\nContent-Length: 25\r\n\r\ndelay=5&payload=";
+fn test_handle_client_get_decode_invalid_payload() {
+    let request = "GET /decode HTTP/1.1\r\nContent-Length: 25\r\n\r\ndelay=5&payload=";
     if let Ok(Some(response)) = simulate_client_request(request) {
         assert!(response.contains("HTTP/1.1 400 Bad Request"));
         assert!(response.contains("Error: 'payload' must be a non-empty string"));
@@ -103,7 +103,7 @@ fn test_handle_client_invalid_request_line() {
 // Test case: Invalid base64 payload
 #[test]
 fn test_handle_client_invalid_base64_payload() {
-    let request = "POST /decode HTTP/1.1\r\nContent-Length: 25\r\n\r\ndelay=5&payload=invalid";
+    let request = "GET /decode HTTP/1.1\r\nContent-Length: 25\r\n\r\ndelay=5&payload=invalid";
     if let Ok(Some(response)) = simulate_client_request(request) {
         assert!(response.contains("HTTP/1.1 404 Not Found"));
     }
@@ -111,8 +111,8 @@ fn test_handle_client_invalid_base64_payload() {
 
 // Test case: Valid request with correct parameters
 #[test]
-fn test_handle_client_post_decode() {
-    let request = "POST /decode HTTP/1.1\r\nContent-Length: 25\r\n\r\ndelay=5&payload=SGVsbG8=";
+fn test_handle_client_get_decode() {
+    let request = "GET /decode HTTP/1.1\r\nContent-Length: 25\r\n\r\ndelay=5&payload=SGVsbG8=";
     if let Ok(Some(response)) = simulate_client_request(request) {
         assert!(response.contains("HTTP/1.1 200 OK"));
     }
