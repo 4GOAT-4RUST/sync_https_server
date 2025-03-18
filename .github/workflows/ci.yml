@@ -12,44 +12,39 @@ on:
 
 jobs:
   checking-repo:
-    runs-on: ubuntu-latest  # Specifies the runner environment
+    runs-on: ubuntu-latest  # Uses the latest Ubuntu runner
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4  # Checks out the repository code
+        uses: actions/checkout@v4  # Checks out repository code
 
       - name: Caching Dependencies
-        uses: actions/cache@v4  # Caches dependencies to speed up builds
+        uses: actions/cache@v4  # Caches dependencies for faster builds
         with:
           path: |
             ~/.cargo/registry
-            ~/.cargo/.git/db/
+            ~/.cargo/git
             target
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-cargo-
 
       - name: Set up Rust
-        uses: actions-rs/toolchain@v1
+        uses: rust-lang/setup-rust-action@v1
         with:
-          profile: minimal
-          toolchain: stable
-          override: true
+          rust-version: stable
+          components: clippy, rustfmt  # Installs Clippy and Rustfmt
 
-      - name: Install Clippy & Format
-        run: rustup component add clippy rustfmt  # Adds Clippy and Rustfmt
+      - name: Install cargo-audit
+        run: cargo install cargo-audit  # Ensures cargo-audit is available
 
-      - name: Run cargo audit
-        uses: actions-rs/cargo@v1.0.0
-        with:
-          command: audit
+      - name: Check Formatting
+        run: cargo fmt -- --check  # Fails if the code is not formatted
 
-      - name: Run cargo test
-        uses: actions-rs/cargo@v1.0.0
-        with:
-          command: test
+      - name: Run Clippy (Linting)
+        run: cargo clippy -- -D warnings  # Treats warnings as errors
 
-      - name: Run cargo fmt
-        run: cargo fmt -- --check  # Checks if the code is properly formatted
+      - name: Run Tests
+        run: cargo test --verbose  # Runs tests with verbose output
 
-      - name: Run cargo clippy
-        run: cargo clippy -- -D warnings  # Runs Clippy and treats warnings as errors
+      - name: Run Security Audit
+        run: cargo audit  # Checks for security vulnerabilities
