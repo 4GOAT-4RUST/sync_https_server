@@ -59,8 +59,10 @@ curl -X POST -d "payload=SGVsbG8ui29ywGQ=" -d "delay=5" http://127.0.0.1:8080/de
 ```
 > *NB*: Note that if you aliased docker in you in you host machine to docker in your vm use your vm IP address when sending the request to the server
 
-#### Integration tests  
-![Test](/images/image2.png) 
+#### Visualizer 
+
+![Image](/images/running_http_server.png)
+![Image](/images/http_request.png)
 
 [For more details on this project visit our docs]()
 
