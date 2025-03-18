@@ -1,12 +1,11 @@
 use std::{
-    io::Error,
-    rc::Rc,
     sync::{mpsc, Arc, Mutex},
     thread,
 };
+
 pub struct ThreadPool {
-    workers: Vec<Result<Worker, Error>>,
-    sender: Option<mpsc::Sender<Job>>,
+    pub workers: Vec<Worker>,
+    pub sender: Option<mpsc::Sender<Job>>,
 }
 
 impl ThreadPool {
@@ -17,7 +16,7 @@ impl ThreadPool {
     /// # Panics
     ///
     /// The `new` function will panic if the size is zero.
-    pub fn new(size: usize) -> ThreadPool {
+    pub fn new(size: usize) -> Result<ThreadPool, &'static str> {
         assert!(size > 0);
 
         let (sender, receiver) = mpsc::channel();
@@ -27,13 +26,16 @@ impl ThreadPool {
         let mut workers = Vec::with_capacity(size);
 
         for id in 0..size {
-            workers.push(Worker::new(id, Arc::clone(&receiver)));
+            workers.push(match Worker::new(id, Arc::clone(&receiver)) {
+                Ok(worker) => worker,
+                Err(_) => return Err("Error could get worker"),
+            });
         }
 
-        ThreadPool {
+        Ok(ThreadPool {
             workers,
             sender: Some(sender),
-        }
+        })
     }
 
     pub fn execute<F>(&self, f: F)
@@ -62,39 +64,35 @@ impl Drop for ThreadPool {
         drop(self.sender.take());
 
         for worker in &mut self.workers {
-            println!(
-                "Shutting down worker {}",
-                match worker {
-                    Ok(id) => {
-                        id.get_id()
+            println!("Shutting down worker {}", worker.get_id());
+
+            if let Some(thread) = worker.thread.take() {
+                match thread.join() {
+                    Ok(_) => {
+                        println!("Successfully Executed The Job")
                     }
                     Err(e) => {
-                        return eprintln!("Unexpected error: {}", e);
+                        eprintln!("Could Not Complete Job: {:?}", e)
                     }
                 }
-            );
-
-            let _thread = match worker {
-                Ok(worker) => worker.get_thread(),
-                Err(_) => {
-                    return eprintln!("Unexpected error occurred");
-                }
-            };
+            }
         }
     }
 }
 
-/// Declaring the worker struct
-struct Worker {
+//// Implementing worker
+pub struct Worker {
     id: usize,
-    thread: Rc<Option<thread::JoinHandle<()>>>,
+    pub thread: Option<thread::JoinHandle<()>>,
 }
-
 pub type Job = Box<dyn FnOnce() + Send + 'static>;
 
 impl Worker {
     /// The worker gets a job from the pool and executes and send the response back to the thread
-    pub fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Job>>>) -> Result<Worker, Error> {
+    pub fn new(
+        id: usize,
+        receiver: Arc<Mutex<mpsc::Receiver<Job>>>,
+    ) -> Result<Worker, &'static str> {
         let thread = thread::spawn(move || loop {
             let message = match receiver.lock() {
                 Ok(val) => val,
@@ -113,21 +111,17 @@ impl Worker {
                 }
                 Err(_) => {
                     println!("Worker {id} disconnected; shutting down.");
-                    break;
                 }
             }
         });
 
         Ok(Worker {
             id,
-            thread: Some(thread).into(),
+            thread: Some(thread),
         })
     }
 
     pub fn get_id(&self) -> usize {
         self.id
-    }
-    fn get_thread(&self) -> Rc<Option<thread::JoinHandle<()>>> {
-        self.thread.clone()
     }
 }
