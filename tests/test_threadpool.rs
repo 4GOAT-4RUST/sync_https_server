@@ -2,7 +2,6 @@ use std::sync::mpsc;
 use std::time::Duration;
 use sync_https_server::threadpool::ThreadPool;
 
-
 //this function test if my program is executing a single job
 #[test]
 fn test_execute_single_job() {
