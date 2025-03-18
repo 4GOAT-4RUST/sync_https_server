@@ -5,7 +5,7 @@ use std::{
     thread,
 };
 pub struct ThreadPool {
-    pub workers: Vec<Result<Worker, Error>>,
+    workers: Vec<Result<Worker, Error>>,
     sender: Option<mpsc::Sender<Job>>,
 }
 
@@ -74,7 +74,7 @@ impl Drop for ThreadPool {
                 }
             );
 
-            let thread = match worker {
+            let _thread = match worker {
                 Ok(worker) => worker.get_thread(),
                 Err(_) => {
                     return eprintln!("Unexpected error occurred");
