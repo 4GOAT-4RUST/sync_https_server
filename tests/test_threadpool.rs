@@ -115,17 +115,19 @@ fn test_thread_pool_shutdown() {
     let value = tx.send(());
     for _ in 0..size {
         match pool {
-            Ok(ref threadpool) => {threadpool.execute(move || {
-            match value {
-                Ok(_) => {
-                    println!("Data send !")
-                }
-                Err(e) => {
-                    eprintln!("Could not send data: {}", e)
-                }
-            };
-        })},
-            Err(_) => {eprintln!("Failed to execute threadpool")},
+            Ok(ref threadpool) => threadpool.execute(move || {
+                match value {
+                    Ok(_) => {
+                        println!("Data send !")
+                    }
+                    Err(e) => {
+                        eprintln!("Could not send data: {}", e)
+                    }
+                };
+            }),
+            Err(_) => {
+                eprintln!("Failed to execute threadpool")
+            }
         };
     }
 

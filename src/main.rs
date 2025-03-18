@@ -9,7 +9,7 @@ fn main() {
     println!("##                                                        ##");
     println!("############################################################");
 
-        let listener = match TcpListener::bind("0.0.0.0:8080") {
+    let listener = match TcpListener::bind("0.0.0.0:8080") {
         Ok(tcp_listener) => tcp_listener, // Successfully binds
         Err(e) => {
             eprintln!("Error binding to port: {}", e);
@@ -30,10 +30,12 @@ fn main() {
         };
 
         match threadpool {
-            Ok(ref threadpool) => {threadpool.execute(move || {
-            handle_client(stream) });
-        },
-            Err(_) => {eprintln!("Could Not Execute threadpool")},
+            Ok(ref threadpool) => {
+                threadpool.execute(move || handle_client(stream));
+            }
+            Err(_) => {
+                eprintln!("Could Not Execute threadpool")
+            }
         };
     }
 }
