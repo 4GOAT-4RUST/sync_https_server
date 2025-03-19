@@ -73,7 +73,6 @@ jobs:
 
   security_audit:
       - name: Run cargo-audit
-        uses: actions/checkout@v1
         uses: actions-rs/audit-check@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
