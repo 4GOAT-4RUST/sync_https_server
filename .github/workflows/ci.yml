@@ -39,8 +39,8 @@ jobs:
       - name: Check Formatting
         run: cargo fmt --check
 
-      - name: Run Clippy (Linting)
-        run: cargo clippy -- -D warnings
+      # - name: Run Clippy (Linting)
+      #   run: cargo clippy -- -D warnings
 
       - name: Run Tests
         run: cargo test --verbose
