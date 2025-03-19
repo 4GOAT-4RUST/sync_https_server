@@ -3,9 +3,9 @@ mod tests {
     use sync_https_server::threadpool::ThreadPool;
 
     use super::*;
-    use std::sync::{Arc, Mutex, mpsc};
-    use std::time::Duration;
+    use std::sync::{mpsc, Arc, Mutex};
     use std::thread;
+    use std::time::Duration;
 
     #[test]
     fn test_thread_pool_creation() {
@@ -63,7 +63,10 @@ mod tests {
             panic!("This job should panic");
         });
 
-        assert!(rx.recv_timeout(Duration::from_secs(2)).is_ok(), "Expected at least one successful execution before panic");
+        assert!(
+            rx.recv_timeout(Duration::from_secs(2)).is_ok(),
+            "Expected at least one successful execution before panic"
+        );
     }
 
     #[test]
@@ -88,11 +91,9 @@ mod tests {
         // Ensure all jobs completed and no extra messages are in the queue
         assert!(rx.try_recv().is_err());
     }
-#[test]
-#[should_panic]  // This tells Rust that we expect a panic
-fn test_thread_pool_creation_failure() {
-    let _ = ThreadPool::new(0);  // Should panic due to assert!(size > 0)
-}
-
-
+    #[test]
+    #[should_panic] // This tells Rust that we expect a panic
+    fn test_thread_pool_creation_failure() {
+        let _ = ThreadPool::new(0); // Should panic due to assert!(size > 0)
+    }
 }
