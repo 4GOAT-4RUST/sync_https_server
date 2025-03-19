@@ -1,9 +1,9 @@
 # OVERVIEW 
 ## Description
-This is a syncronous http server in rust, and this server provide an appropiate way of handling http request and reponses  using syncronous code, rather than asynchronous code. This means that this server processes each request in a blocking manner, using threads to handel multiple request concurrently.
+This is a synchronous http server in rust, and this server provide an appropiate way of handling http request and reponses  using synchronous code, rather than asynchronous code. This means that this server processes each request in a blocking manner, using threads to handle multiple request concurrently.
 
 ## Why Sync Http Server
-As most developers turns to avoid complixity of asyncronous http server, this syncronous http server is usefull because it include little or no abstraction, with zero dependencies, only standard library is used in this server.
+As most developers turns to avoid complixity of asynchronous http server, this synchronous http server is usefull because it include little or no abstraction, with zero dependencies, only standard library is used in this server.
 ### Key features:
 - Safe thread queue: So the queue is where all incomming request from the client are stored, before been proccessed accordingly. 
 - Multi-threaded system: This server make use of threadpool which is set a of previousely spawned threads that enable us to run tasks in parallel without having to spawn new threads for a task. Also this server make use of multiple thread workers to listen to a maximum of eight http request at a time where in each worker thread has and id which allow easy identification.
