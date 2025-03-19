@@ -1,15 +1,22 @@
-FROM rust:latest as builder 
+FROM rust:alpine AS builder 
 
 WORKDIR /app
 
-COPY ..
+COPY . .
 
-RUN cargo build --release
+RUN cargo test --release &&\
+    cargo build --release
 
-FROM debian:latest
+FROM alpine:latest
 
-RUN apt-get update && apt-get install libssl-dev
+# RUN apt-get update -y && apt-get install libssl-dev -y
+WORKDIR /app
+
+RUN apk add --no-cache libgcc
+
+EXPOSE 80
+# RUN apt-get update && apt-get install libssl-dev
 
 COPY --from=builder /app/target/release/sync_https_server /app/sync_https_server
 
-CMD ["/app/sync_https_server"]                             
+CMD [ "/app/sync_https_server" ]
