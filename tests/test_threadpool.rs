@@ -1,151 +1,99 @@
-use std::sync::mpsc;
-use std::time::Duration;
-use sync_https_server::threadpool::ThreadPool;
+#[cfg(test)]
+mod tests {
+    use sync_https_server::threadpool::ThreadPool;
 
-#[test]
-fn test_thread_pool_creation() {
-    let size = 4;
-    let pool = ThreadPool::new(size);
-    assert_eq!(pool.unwrap().workers.len(), size);
-}
+    use super::*;
+    use std::sync::{mpsc, Arc, Mutex};
+    use std::thread;
+    use std::time::Duration;
 
-//this function test if my program is executing a single job
-#[test]
-fn test_execute_single_job() {
-    let size = 2;
-    let pool = ThreadPool::new(size);
+    #[test]
+    fn test_thread_pool_creation() {
+        let size = 4;
+        let pool = ThreadPool::new(size).expect("Failed to create thread pool");
+        assert_eq!(pool.workers.len(), size);
+    }
 
-    let (tx, rx) = mpsc::channel();
+    #[test]
+    fn test_execute_single_job() {
+        let pool = ThreadPool::new(2).expect("Failed to create thread pool");
 
-    pool.unwrap().execute(move || {
-        match tx.send(()) {
-            Ok(_) => {
-                println!("Send with success")
-            }
-            Err(e) => {
-                eprintln!("Failed to send job: {}", e)
-            }
-        };
-    });
+        let (tx, rx) = mpsc::channel();
 
-    // Wait for the job to complete
-    match rx.recv_timeout(Duration::from_secs(2)) {
-        Ok(_) => {
-            println!("Execution successful")
-        }
-        Err(e) => {
-            eprintln!("Error: {}", e)
-        }
-    };
-}
-
-#[test]
-fn test_execute_multiple_jobs() {
-    let size = 2;
-    let pool = ThreadPool::new(size);
-
-    let (tx, rx) = mpsc::channel();
-
-    let value = tx.send(());
-    for _ in 0..size {
-        pool.as_ref().unwrap().execute(move || {
-            match value {
-                Ok(_) => {
-                    println!("Thread executing ..")
-                }
-                Err(e) => {
-                    eprintln!("Failed to execute job: {}", e)
-                }
-            };
+        pool.execute(move || {
+            tx.send(()).expect("Failed to send signal");
         });
+
+        assert!(rx.recv_timeout(Duration::from_secs(2)).is_ok());
     }
 
-    // Wait for all jobs to complete
-    for _ in 0..size {
-        match rx.recv_timeout(Duration::from_secs(2)) {
-            Ok(_) => {
-                println!("Jobs Completed")
-            }
-            Err(e) => {
-                eprintln!("Jobs did not complete successfully: {}", e)
-            }
-        };
-    }
+    #[test]
+    fn test_execute_multiple_jobs() {
+        let pool = ThreadPool::new(3).expect("Failed to create thread pool");
 
-    // Ensure no more jobs are in the queue
-    assert_eq!(rx.try_recv().is_err(), true);
-}
+        let (tx, rx) = mpsc::channel();
+        let counter = Arc::new(Mutex::new(0));
 
-#[test]
-fn test_execute_with_panic() {
-    let size = 2;
-    let pool = ThreadPool::new(size);
-
-    let (tx, rx) = mpsc::channel();
-
-    // Submit a job that panics
-    pool.unwrap().execute(move || {
-        tx.send(()).unwrap();
-        panic!("This job should panic");
-    });
-
-    // Submit a normal job
-
-    // Wait for the normal job to complete
-    match rx.recv_timeout(Duration::from_secs(2)) {
-        Ok(_) => {
-            println!("Finished waiting")
+        for _ in 0..5 {
+            let tx_clone = tx.clone();
+            let counter_clone = Arc::clone(&counter);
+            pool.execute(move || {
+                let mut num = counter_clone.lock().expect("Failed to lock counter");
+                *num += 1;
+                tx_clone.send(()).expect("Failed to send signal");
+            });
         }
-        Err(e) => {
-            eprintln!("Failed to wait: {}", e)
+
+        for _ in 0..5 {
+            assert!(rx.recv_timeout(Duration::from_secs(2)).is_ok());
         }
-    };
 
-    // Ensure the panicking job did not block the normal job
-    assert_eq!(rx.try_recv().is_err(), true);
-}
-
-#[test]
-fn test_thread_pool_shutdown() {
-    let size = 2;
-    let pool = ThreadPool::new(size);
-
-    let (tx, rx) = mpsc::channel();
-
-    let value = tx.send(());
-    for _ in 0..size {
-        match pool {
-            Ok(ref threadpool) => threadpool.execute(move || {
-                match value {
-                    Ok(_) => {
-                        println!("Data send !")
-                    }
-                    Err(e) => {
-                        eprintln!("Could not send data: {}", e)
-                    }
-                };
-            }),
-            Err(_) => {
-                eprintln!("Failed to execute threadpool")
-            }
-        };
+        let final_count = *counter.lock().unwrap();
+        assert_eq!(final_count, 5);
     }
 
-    // Drop the pool to shut down the workers
-    drop(pool);
+    #[test]
+    fn test_execute_with_panic() {
+        let pool = ThreadPool::new(2).expect("Failed to create thread pool");
 
-    // Wait for all jobs to complete
-    for _ in 0..size {
-        match rx.recv_timeout(Duration::from_secs(3)) {
-            Ok(_) => {
-                println!("Job completed successfully")
-            }
-            Err(e) => {
-                eprintln!("Could not complete Jobs: {}", e)
-            }
-        };
+        let (tx, rx) = mpsc::channel();
+
+        pool.execute(move || {
+            let _ = tx.send(()); // Attempt to send signal before panic
+            panic!("This job should panic");
+        });
+
+        assert!(
+            rx.recv_timeout(Duration::from_secs(2)).is_ok(),
+            "Expected at least one successful execution before panic"
+        );
     }
 
-    // Ensure no more jobs are in the queue
-    assert_eq!(rx.try_recv().is_err(), true);
+    #[test]
+    fn test_thread_pool_shutdown() {
+        let pool = ThreadPool::new(2).expect("Failed to create thread pool");
+
+        let (tx, rx) = mpsc::channel();
+
+        for _ in 0..2 {
+            let tx_clone = tx.clone();
+            pool.execute(move || {
+                thread::sleep(Duration::from_millis(100)); // Simulate work
+                tx_clone.send(()).expect("Failed to send signal");
+            });
+        }
+
+        drop(pool); // Drop the pool, should shutdown workers
+
+        assert!(rx.recv_timeout(Duration::from_secs(2)).is_ok());
+        assert!(rx.recv_timeout(Duration::from_secs(2)).is_ok());
+
+        // Ensure all jobs completed and no extra messages are in the queue
+        assert!(rx.try_recv().is_err());
+    }
+    #[test]
+    #[should_panic] // This tells Rust that we expect a panic
+    fn test_thread_pool_creation_failure() {
+        let _ = ThreadPool::new(0); // Should panic due to assert!(size > 0)
+    }
 }
