@@ -1,19 +1,23 @@
 use std::io::Write;
-
-/// Sends an HTTP response to the client over the provided stream
-///
-/// This function takes a mutable reference to any type that implements the `Write` trait
-/// (such as a TCP stream) and writes the given response string to it
-/// It ensures that the response is properly flushed, so the client receives it immediately
+/// Sends an HTTP response to the client.
 pub fn send_response<T: Write>(stream: &mut T, response: &str) {
     if let Err(e) = stream.write_all(response.as_bytes()) {
         eprintln!("Error writing response: {}", e);
     }
 
-    // Flush the stream to ensure all written data is sent immediately.
-    // This prevents potential buffering delays that might cause incomplete responses.
     if let Err(e) = stream.flush() {
         // Print an error message if flushing fails.
         eprintln!("Error flushing response: {}", e);
+    }
+}
+
+mod test {
+
+    use super::*;
+    #[test]
+    fn test_send_response() {
+        let mut output = Vec::new();
+        send_response(&mut output, "HTTP/1.1 200 OK\r\n\r\n");
+        assert_eq!(output, b"HTTP/1.1 200 OK\r\n\r\n");
     }
 }
