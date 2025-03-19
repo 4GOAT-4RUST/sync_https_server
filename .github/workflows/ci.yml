@@ -23,9 +23,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4  # Checks out the repository code
 
-  caching-dependencies:
-    needs: checking-repo  # Ensures this job runs after checking-repo
-    steps:
       - name: Checkout Repository
         uses: actions/checkout@v4  # Ensures repository is available
       - name: Caching Dependencies
@@ -39,9 +36,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cargo-
 
-  checking-code:
-    needs: [checking-repo, caching-dependencies]  # Runs after checking-repo and caching
-    steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
       - name: Set up Rust
@@ -55,9 +49,6 @@ jobs:
           cargo check --verbose  # Checks the code for errors
           cargo test --verbose  # Runs tests
 
-  clippy-and-formatting:
-    needs: checking-repo  # Ensures repository is available before running
-    steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
       - name: Set up Rust
@@ -71,8 +62,6 @@ jobs:
       - name: Run cargo clippy
         run: cargo clippy -- -D warnings  # Runs Clippy and treats warnings as errors
 
-  security_audit:
-    steps:
       - name: Run cargo-audit
         uses: actions/checkout@v1
         uses: actions-rs/audit-check@v1
