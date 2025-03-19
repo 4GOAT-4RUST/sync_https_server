@@ -33,9 +33,6 @@ jobs:
         with:
           components: clippy, rustfmt
 
-      - name: Install cargo-audit
-        run: cargo install --force cargo-audit
-
       - name: Check Formatting
         run: cargo fmt --check
 
@@ -45,5 +42,7 @@ jobs:
       - name: Run Tests
         run: cargo test --verbose
 
-      - name: Run Security Audit
-        run: cargo audit || echo "cargo audit failed"
+
+      - name: Run cargo-audit
+        uses: actions-rust-lang/audit@v1
+ 
