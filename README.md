@@ -5,8 +5,8 @@ A Rust server from scratch that accepts HTTP requests, extracts query parameters
 
 ## Features
 
-- Safe thread queue  
-- Multi-threaded system 
+    - Safe thread queue  
+    - Multi-threaded system 
 
 ## Prerequisites
 
