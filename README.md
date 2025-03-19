@@ -61,5 +61,5 @@ curl "http://localhost:8080/?msg=SGVsbG8gd29ybGQ=&delay=2000"
 ![Preview](/images/Screenshot%20from%202025-03-19%2010-31-10.png)
 
 ## License
-This project is licensed under the MIT License. See the [LICENSE](https://opensource.org/licenses/MIT) file for more details.
+This project is licensed under the MIT License. See the [LICENSE](https://github.com/4GOAT-4RUST/sync_https_server/blob/dev/LICENSE) file for more details.
 
