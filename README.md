@@ -17,47 +17,27 @@ Installed.
 
 ## Installation & Running
 
-### Run Directly with Cargo
-
-1. **Clone The Repository**
+### Using Cargo
 ```sh  
-git clone https://github.com/4GOAT-4RUST/sync_https_server.git  
+git clone https://github.com/4GOAT-4RUST/sync_https_server.git  # Clone repo
+cd sync_https_server  # Enter project directory
+cargo run  # Build and run the server
 ```
-2. **Navigate to The Project directory**
+
+### Using Docker
+#### Build and Run
 ```sh
-cd sync_https_server
+docker build -t sync_https_server .  # Build Docker image
+docker run --rm -p 8080:8080 sync_https_server  # Run container
 ```
-3. **Run the Server**
+#### (Optional) Pull Prebuilt Image
 ```sh
-cargo run
+docker pull ghcr.io/4goat-4rust/sync_https_server:slim  # Use prebuilt image
 ```
-
-### Run Using Docker
-
-#### Build and Run Manually
-
-1. **Build the Docker Image**
+#### Using Docker Compose
 ```sh
-    docker build -t sync_https_server .
+docker-compose up --build  # Build and start with Compose
 ```
-2. **Run the Container**
-```sh
-    docker run --rm -p 8080:8080 your-image-name
-```
-
-#### (Optional) Pull and Run the Prebuilt Docker Image
-If you don’t want to clone and build manually, you can pull the image:
-```sh
-docker pull ghcr.io/4goat-4rust/sync_https_server:slim
-```
-
-### Run Using Docker Compose
-
-1. **Build and Start the Server**
-```sh
-docker-compose up --build
-```
-
 ## Sending Requests
 
 The server expects a **GET** request with two query parameters:
@@ -81,5 +61,5 @@ curl "http://localhost:8080/?msg=SGVsbG8gd29ybGQ=&delay=2000"
 ![Preview](/images/Screenshot%20from%202025-03-19%2010-31-10.png)
 
 ## License
-This project is licensed under the MIT License. See the [LICENSE](https://opensource.org/licenses/MIT) file for more details.
+This project is licensed under the MIT License. See the [LICENSE](https://github.com/4GOAT-4RUST/sync_https_server/blob/dev/LICENSE) file for more details.
 
