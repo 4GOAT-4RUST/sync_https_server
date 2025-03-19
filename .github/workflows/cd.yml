@@ -63,3 +63,4 @@ jobs:
 
       - name: Push slimmed Docker image
         run: docker push ghcr.io/${{ secrets.REPOSITORY }}/sync_https_server:slim
+
