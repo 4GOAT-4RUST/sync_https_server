@@ -72,7 +72,9 @@ jobs:
         run: cargo clippy -- -D warnings  # Runs Clippy and treats warnings as errors
 
   security_audit:
+    steps:
       - name: Run cargo-audit
+        uses: actions/checkout@v1
         uses: actions-rs/audit-check@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
