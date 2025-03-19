@@ -47,10 +47,12 @@ jobs:
       # - name: Run Clippy (Linting)
       #   run: cargo clippy -- -D warnings
 
-      - name: Run Tests
-        run: cargo test --verbose
 
 
       - name: Run cargo-audit
         uses: actions-rust-lang/audit@v1
+
+      - name: Run Tests
+        run: cargo test --verbose
+
  
