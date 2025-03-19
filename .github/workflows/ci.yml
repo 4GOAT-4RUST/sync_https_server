@@ -1,0 +1,55 @@
+name: Rust CI
+
+on:
+  push:
+    branches:
+      - main  # Trigger the workflow when pushing to the main branch
+      - dev   # Trigger the workflow when pushing to the dev branch
+  pull_request:
+    branches:
+      - main  # Trigger on pull requests targeting the main branch
+      - dev   # Trigger on pull requests targeting the dev branch
+    path:
+      - '**/Cargo.toml'
+      - '**/Cargo.lock'
+permissions:
+  contents: write  # Grants permission to modify repository contents
+
+jobs:
+  checking-repo:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4  # Ensures repository is available
+      - name: Caching Dependencies
+        uses: actions/cache@v4  # Caches dependencies to speed up builds
+        with:
+          path: |
+            ~/.cargo/registry/
+            ~/.cargo/.git/db/
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Set up Rust
+
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - name: Check Formatting
+        run: cargo fmt --check
+
+      
+
+      - name: Run cargo-audit
+        uses: actions-rust-lang/audit@v1
+
+      - name: Run Tests
+        run: cargo test --verbose
+
+ 
