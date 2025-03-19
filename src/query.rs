@@ -4,134 +4,61 @@ use std::thread;
 use std::time::Duration;
 
 use crate::base64_decode::base64_decode;
+use crate::error::RequestError;
 use crate::response::send_response;
 
 // Common HTTP response status codes
 const HTTP_200: &str = "HTTP/1.1 200 OK\r\n";
-const HTTP_400: &str = "HTTP/1.1 400 Bad Request\r\n";
 const HTTP_404: &str = "HTTP/1.1 404 Not Found\r\n";
 
 /// Handles incoming client requests and processes them accordingly.
-pub fn handle_client<T: Read + Write>(mut stream: T) {
-    let mut buffer = [0; 1024]; // A small storage space to read the request data
+pub fn handle_client<T: Read + Write>(mut stream: T) -> Result<(), RequestError> {
+    let mut buffer = [0; 1024];
 
-    // Try reading data from the stream
-    match stream.read(&mut buffer) {
-        Ok(0) => {
-            println!("Debug: No data received from client");
-            send_response(&mut stream, "No data received from Client\n");
-            return;
-        }
-        Ok(_) => {} // Data was received, continue processing
-        Err(_) => {
-            println!("Debug: Error reading request");
-            send_response(
-                &mut stream,
-                &format!("{}Error reading request\r\n", HTTP_400),
-            );
-            return;
-        }
-    }
+    stream.read(&mut buffer).map_err(RequestError::IoError)?;
 
-    // Convert the raw request data into a readable string
-    let request = match std::str::from_utf8(&buffer) {
-        Ok(r) => r,
-        Err(_) => {
-            println!("Debug: Failed to convert buffer to UTF-8");
-            send_response(
-                &mut stream,
-                &format!("{}Failed to convert buffer to UTF-8\r\n", HTTP_400),
-            );
-            return;
-        }
-    };
+    let request = std::str::from_utf8(&buffer).map_err(|_| RequestError::InvalidRequestLine)?;
 
-    println!("Debug: Received request: {}", request);
+    println!("Received request: {}", request);
+
     let mut lines = request.lines();
+    let request_line = lines.next().ok_or(RequestError::InvalidRequestLine)?;
 
-    // Get the first line of the request (e.g., "GET /decode HTTP/1.1")
-    let request_line = match lines.next() {
-        Some(line) => line,
-        None => {
-            println!("Debug: Empty request line");
-            send_response(
-                &mut stream,
-                &format!("{}Error: Invalid Request Line\r\n", HTTP_400),
-            );
-            return;
-        }
-    };
-
-    // Split the request line into its parts
     let parts: Vec<&str> = request_line.split_whitespace().collect();
     if parts.len() != 3 || parts[2] != "HTTP/1.1" {
-        println!("Debug: Invalid request line: {}", request_line);
-        send_response(
-            &mut stream,
-            &format!("{}Error: Invalid Request Line\r\n", HTTP_400),
-        );
-        return;
+        return Err(RequestError::InvalidRequestLine);
     }
 
-    // Figure out what kind of request we received
     match (parts.first(), parts.get(1)) {
-        (Some(&"GET"), Some(&"/decode")) => handle_decode(&mut stream, request),
+        (Some(&"GET"), Some(&"/decode")) => handle_decode(&mut stream, request)?,
         (_, Some(route)) => {
-            println!("Debug: Route not found: {}", route);
             send_response(
                 &mut stream,
                 &format!("{}Content-Length: 9\r\n\r\nNot Found", HTTP_404),
             );
         }
-        _ => {
-            println!("Debug: Malformed request");
-            send_response(
-                &mut stream,
-                &format!("{}Error: Malformed request\r\n", HTTP_400),
-            );
-        }
+        _ => return Err(RequestError::InvalidRequestLine),
     }
+
+    Ok(())
 }
 
 /// Handles decoding requests, extracts parameters, and sends a response.
-fn handle_decode<T: Write>(stream: &mut T, request: &str) {
+fn handle_decode<T: Write>(stream: &mut T, request: &str) -> Result<(), RequestError> {
     let params = parse_query_params(request);
-    println!("Debug: Parsed params: {:?}", params);
+    println!("Parsed params: {:?}", params);
 
-    // Extract 'delay' from request parameters and ensure it's a valid number
-    let delay = match params.get("delay").and_then(|v| v.parse::<u64>().ok()) {
-        Some(d) if d > 0 => d,
-        _ => {
-            println!("Debug: Invalid or missing 'delay'");
-            send_response(
-                stream,
-                &format!("{}Error: 'delay' must be a positive integer\r\n", HTTP_400),
-            );
-            return;
-        }
-    };
+    let delay = params
+        .get("delay")
+        .and_then(|v| v.parse::<u64>().ok())
+        .ok_or(RequestError::InvalidDelay)?;
 
-    // Extract 'payload' from request parameters and make sure it's not empty
-    let payload = match params.get("payload").filter(|p| !p.is_empty()) {
-        Some(p) => p,
-        None => {
-            println!("Debug: Missing 'payload'");
-            send_response(
-                stream,
-                &format!(
-                    "{}Error: 'payload' must be a non-empty string\r\n",
-                    HTTP_400
-                ),
-            );
-            return;
-        }
-    };
+    let payload = params.get("payload").ok_or(RequestError::MissingPayload)?;
 
-    // Attempt to decode the Base64 payload
     match base64_decode(payload) {
         Ok(decoded) => {
             let decoded_str = String::from_utf8_lossy(&decoded);
-            let response_body = format!("Decoded Message: {}", decoded_str); // Remove delay from response
+            let response_body = format!("Decoded Message: {}", decoded_str);
             let content_length = response_body.len();
 
             let response = format!(
@@ -139,22 +66,13 @@ fn handle_decode<T: Write>(stream: &mut T, request: &str) {
                 HTTP_200, content_length, response_body
             );
 
-            println!("Debug: Successful decoding, response: {}", response);
-
-            // Introduce the delay before sending the response
-            println!("Debug: Delaying response by {} Mili seconds...", delay);
+            println!("Delaying response by {} milliseconds...", delay);
             thread::sleep(Duration::from_millis(delay));
 
-            // Send the response after the delay
             send_response(stream, &response);
+            Ok(())
         }
-        Err(_) => {
-            println!("Debug: Invalid base64 payload");
-            send_response(
-                stream,
-                &format!("{}Error: Invalid base64 payload\r\n", HTTP_404),
-            );
-        }
+        Err(_) => Err(RequestError::InvalidBase64),
     }
 }
 
@@ -170,4 +88,43 @@ fn parse_query_params(request: &str) -> HashMap<&str, &str> {
         }
     }
     params
+}
+
+mod tests {
+
+    use super::*;
+    use std::io::Cursor;
+
+    #[test]
+    fn test_handle_client_valid_request() {
+        let request = "GET / HTTP/1.1\r\n\r\n";
+        let mut stream = Cursor::new(request.as_bytes().to_vec());
+        let result = handle_client(&mut stream);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_handle_client_invalid_request_line() {
+        let request = "INVALID REQUEST";
+        let mut stream = Cursor::new(request.as_bytes().to_vec());
+        let result = handle_client(&mut stream);
+        assert!(matches!(result, Err(RequestError::InvalidRequestLine)));
+    }
+
+    #[test]
+    fn test_handle_client_missing_http_version() {
+        let request = "GET / missing_version";
+        let mut stream = Cursor::new(request.as_bytes().to_vec());
+        let result = handle_client(&mut stream);
+        assert!(matches!(result, Err(RequestError::InvalidRequestLine)));
+    }
+
+    #[test]
+    fn test_handle_client_base64_encoded_path() {
+        let encoded_path = "L3Rlc3Q="; // Base64 for "/test"
+        let request = format!("GET {} HTTP/1.1\r\n\r\n", encoded_path);
+        let mut stream = Cursor::new(request.as_bytes().to_vec());
+        let result = handle_client(&mut stream);
+        assert!(result.is_ok());
+    }
 }
