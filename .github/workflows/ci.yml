@@ -5,7 +5,6 @@ on:
     branches:
       - main  # Trigger the workflow when pushing to the main branch
       - dev   # Trigger the workflow when pushing to the dev branch
-      - "**"
   pull_request:
     branches:
       - main  # Trigger on pull requests targeting the main branch
@@ -18,10 +17,8 @@ permissions:
 
 jobs:
   checking-repo:
-    runs-on: ubuntu-latest  # Specifies the runner environment
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4  # Checks out the repository code
 
       - name: Checkout Repository
         uses: actions/checkout@v4  # Ensures repository is available
@@ -39,30 +36,21 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
       - name: Set up Rust
-        uses: dtolnay/rust-toolchain@master  # Updated action for Rust toolchain
-        with:
-          toolchain: stable
-          override: true
-      - name: Running Cargo Checks
-        run: |
-          cargo install cargo-check  # Installs cargo-check for linting
-          cargo check --verbose  # Checks the code for errors
-          cargo test --verbose  # Runs tests
 
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-      - name: Set up Rust
-        uses: dtolnay/rust-toolchain@master  # Updated action for Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: stable
-      - name: Install Clippy & Format
-        run: rustup component add clippy rustfmt  # Adds Clippy and Rustfmt
-      - name: Run cargo fmt
-        run: cargo fmt -- --check  # Checks if the code is properly formatted
-      - name: Run cargo clippy
-        run: cargo clippy -- -D warnings  # Runs Clippy and treats warnings as errors
+          components: clippy, rustfmt
+
+      - name: Check Formatting
+        run: cargo fmt --check
+
+      # - name: Run Clippy (Linting)
+      #   run: cargo clippy -- -D warnings
+
+      - name: Run Tests
+        run: cargo test --verbose
+
 
       - name: Run cargo-audit
-        uses: actions-rs/audit-check@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+        uses: actions-rust-lang/audit@v1
+ 

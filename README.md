@@ -1,78 +1,65 @@
-#  **Multithreaded Sync Http Server**  
+# SYNC HTTP DELAY SERVER 
+
+## Description
+An Rust server From scratch that accepts HTTP requests , extracts query parameters decodes the Base64 -encoded message and responds with the decoded message wiht a delay (in miliseconds).
 
 
-This web server is designed to **handle incoming requests** and send responses based on the provided **payload** and **delay**.  
+## Features
 
-The server can receive multiple requests and handle execution concurrently using a **thread pool of max size 8 threads**. Other requests are **queued** and processed when a worker becomes available. 
+-  Safe thread queue  
+-  Multi-threaded system 
+## Prerequisites
 
-### **Key Features**  
-- **Multi-threaded request handling** – Uses threads to process requests concurrently.  
-- **Configurable delay** – The server introduces a delay before responding.  
-- **Thread-safe queue** – Manages incoming requests efficiently.  
-
----  
-
-Build and Run
--------------
-####  Cloning The Repository
-To have this project locally, run the following commands:  
+Before running this project, ensure you have:
+- [Rust & Cargo](https://www.rust-lang.org/tools/install)
+- [Docker](https://docs.docker.com/get-docker/) <br>
+Installed.
+## Installation & Running
+- **Clone The Repository**
 ```sh  
 git clone https://github.com/4GOAT-4RUST/sync_https_server.git  
-cd sync_https_server  
 ```
-#### Build and Run
-To build this project run the following commands
+- **Navigate to The Project directory**
 ```sh
-cargo build
-cargo run --release
+cd sync_https_server
+```
+- **Run Directly with Cargo**
+```sh
+cargo run
+```
+- **Send a Request**
+The server expects a **GET** request with two query parameters:
+
+```
+GET /?msg=<Base64-encoded string>&delay=<milliseconds>
 ```
 
-#### Run Using Docker
+| Parameter | Description                                     | Example                              |
+|-----------|-------------------------------------------------|--------------------------------------|
+| `msg`     | A Base64-encoded string to decode              | `SGVsbG8gd29ybGQ=` (for "Hello world") |
+| `delay`   | The delay (in milliseconds) before responding  | `2000` (for a 2-second delay)       |
 
-To run this project using [docker](https://docs.docker.com/get-started/docker-overview/) you need to have docker running on your local machine.
-You can either use the image on [ghcr](https://github.com/4GOAT-4RUST/sync_https_server/pkgs/container/sync_https_server) or build it locally 
-
-**Using docker image**
-
-- **Building and running docker image locally**
-
+**Run Using Docker**
+-  **Build the Docker Image**
 ```sh
     docker build -t your-image-name .
+```
+- **Run the Container**
+```sh
     docker run --rm -p 8080:8080 your-image-name
 ```
-
-#### running without Cloning     
+- **Send Request(Docker)**
 ```sh
-docker pull ghcr.io/4goat-4rust/sync_https_server:slim 
-docker run --rm -p 8080:8080 ghcr.io/4goats-4rust/sync_https_server:slim 
+curl "http://localhost:8080/?msg=SGVsbG8gd29ybGQ=&delay=2000"
 ```
+**Optionally you can still Use docker Compose**
 
-#### structure of A request 
+Build the Docker image , Start the server on port 8080 using
 ```sh
-curl -X <METHOD> <URL> -H "<HEADER>" -d "<DATA>"
+docker-compose up --build
 ```
+## Preview
 
-example
-```sh  
-curl -X POST -d "payload=SGVsbG8ui29ywGQ=" -d "delay=5" http://127.0.0.1:8080/decode  
-```
-
-> *NB*: Note that if you aliased docker in you in you host machine to docker in your vm use your vm IP address when sending the request to the server
-
-#### Visualizer 
-
-![Image](/images/running_http_server.png)
-![Image](/images/http_request.png)
-
-[For more details on this project visit our docs]()
 
 ## License
-This project is licensed under the MIT .
-You are free to use, modify, and distribute it under these terms.
-
-Contact 
-[Jagoum](https://github.com/Jagoum)
-[Usher](https://github.com/USHER-PB)
-[Emmanuel](https://github.com/Donemmanuelo)
-[Onel](https://github.com/onelrian)
-for issues , Open issue
+This project is licensed under the MIT License. See the [LICENSE](https://opensource.org/licenses/MIT) file for more details.
