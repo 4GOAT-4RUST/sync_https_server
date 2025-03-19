@@ -1,7 +1,7 @@
 # SYNC HTTP DELAY SERVER 
 
 ## Description
-An Rust server From scratch that accepts HTTP requests , extracts query parameters decodes the Base64 -encoded message and responds with the decoded message wiht a delay (in miliseconds).
+An Rust server From scratch that accepts HTTP requests , extracts query parameters decodes the Base64 -encoded message and responds with the decoded message with a delay (in miliseconds).
 
 
 ## Features
@@ -42,7 +42,7 @@ GET /?msg=<Base64-encoded string>&delay=<milliseconds>
 **Run Using Docker**
 -  **Build the Docker Image**
 ```sh
-    docker build -t your-image-name .
+    docker build -t sync_https_server .
 ```
 - **Run the Container**
 ```sh
@@ -60,6 +60,7 @@ docker-compose up --build
 ```
 ## Preview
 
+![Preview](/images/Screenshot%20from%202025-03-19%2010-31-10.png)
 
 ## License
 This project is licensed under the MIT License. See the [LICENSE](https://opensource.org/licenses/MIT) file for more details.
