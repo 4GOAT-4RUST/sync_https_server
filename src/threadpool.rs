@@ -130,5 +130,3 @@ impl Worker {
         self.id
     }
 }
-
-
