@@ -66,7 +66,7 @@ impl Drop for ThreadPool {
         drop(self.sender.take());
 
         for worker in &mut self.workers {
-            println!("Shutting down worker {}", worker.get_id());
+            println!("Shutting down worker {}", worker.get_id()+1);
 
             if let Some(thread) = worker.thread.take() {
                 match thread.join() {
@@ -110,12 +110,12 @@ impl Worker {
 
             match reciever {
                 Ok(job) => {
-                    println!("Worker {id} got a job; executing.");
+                    println!("Worker {} got a job; executing.",id+1);
 
                     job(); // This function executes the job and sends the response to the next thread
                 }
                 Err(_) => {
-                    println!("Worker {id} disconnected; shutting down.");
+                    println!("Worker {} disconnected; shutting down.",id+1);
                     break;
                 }
             }
