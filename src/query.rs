@@ -130,9 +130,24 @@ fn parse_query_params(query: &str) -> HashMap<String, String> {
     params
 }
 
+fn send_response<T: Write>(stream: &mut T, body: &str) {
+    let response = format!(
+        "HTTP/1.1 200 OK\r\n\
+        Content-Length: {}\r\n\
+        Content-Type: text/plain\r\n\
+        Connection: close\r\n\
+        \r\n\
+        {}",
+        body.len(),
+        body
+    );
+
+    let _ = stream.write_all(response.as_bytes());
+    let _ = stream.flush();
+}
+
 #[cfg(test)]
 mod tests {
-
     use super::*;
     use std::io::Cursor;
 
