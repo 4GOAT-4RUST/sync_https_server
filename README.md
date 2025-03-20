@@ -1,11 +1,10 @@
 # SYNC HTTP DELAY SERVER 
 
 ## Description
-A Rust server from scratch that accepts HTTP requests, extracts query parameters, decodes the Base64-encoded message, and responds with the decoded message with a delay (in milliseconds).
-
+A Rust server from scratch that accepts HTTP requests, and delay the responds bef
 ## Features
 
-- Safe thread queue  
+- Threadpool
 - Multi-threaded system 
 
 ## Prerequisites
