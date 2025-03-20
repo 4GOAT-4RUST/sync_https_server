@@ -21,6 +21,7 @@ impl ThreadPool {
             return Err("The size of the thread pool cannot be less than one")
         }
         let (sender, receiver) = mpsc::channel();
+        // This creates a channel between the sender and the receiver 
 
         let receiver = Arc::new(Mutex::new(receiver));
 
@@ -68,7 +69,7 @@ impl Drop for ThreadPool {
             println!("Shutting down worker {}", worker.get_id());
 
             if let Some(thread) = worker.thread.take() {
-                match thread.join() {
+                match thread.join() { // we join the other threads that have not been drop so that they finish their execution and are also drop before the worker can be drop 
                     Ok(_) => {
                         println!("Successfully Executed The Job")
                     }
@@ -94,13 +95,14 @@ impl Worker {
         id: usize,
         receiver: Arc<Mutex<mpsc::Receiver<Job>>>,
     ) -> Result<Worker, &'static str> {
+        // here we loop so as to allow other incoming request to be spawn on the same thread
         let thread = thread::spawn(move || loop {
-            let message = {
+            // let _message = {
                 let reciever = match receiver.lock() {
                     Ok(val) => val.recv(),
                     Err(e) => {
                         eprintln!("Error: {}", e);
-                        return;
+                        return ;
                     }
                 };
 
@@ -115,7 +117,7 @@ impl Worker {
                         break;
                     }
                 }
-            };
+            // };
         });
 
         Ok(Worker {
@@ -129,6 +131,7 @@ impl Worker {
     }
 }
 
+<<<<<<< HEAD
 #[cfg(test)]
 mod tests {
 
@@ -227,4 +230,6 @@ mod tests {
         let _ = ThreadPool::new(0); // Should panic due to assert!(size > 0)
     }
 }
+=======
+>>>>>>> 242b154 (style{clean up} removed all warning in threadpool.rs)
 
