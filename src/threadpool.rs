@@ -83,7 +83,7 @@ impl Drop for ThreadPool {
     }
 }
 
-//// Implementing worker
+/// Implementing worker
 pub struct Worker {
     id: usize,
     pub thread: Option<thread::JoinHandle<()>>,
