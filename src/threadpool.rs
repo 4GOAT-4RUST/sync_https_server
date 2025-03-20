@@ -230,6 +230,9 @@ mod tests {
         let _ = ThreadPool::new(0); // Should panic due to assert!(size > 0)
     }
 }
+<<<<<<< Updated upstream
 =======
 >>>>>>> 242b154 (style{clean up} removed all warning in threadpool.rs)
 
+=======
+>>>>>>> Stashed changes
