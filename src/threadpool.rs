@@ -17,8 +17,8 @@ impl ThreadPool {
     ///
     /// The `new` function will panic if the size is zero.
     pub fn new(size: usize) -> Result<ThreadPool, &'static str> {
-        if size < 1 {
-            return Err("The size of the thread pool cannot be less than one");
+        if size < 1{
+            return Err("The size of the thread pool cannot be less than one")
         }
         let (sender, receiver) = mpsc::channel();
         // This creates a channel between the sender and the receiver
