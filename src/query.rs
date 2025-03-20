@@ -31,7 +31,7 @@ pub fn handle_client<T: Read + Write>(mut stream: T) -> Result<(), RequestError>
 
     match (parts.first(), parts.get(1)) {
         (Some(&"GET"), Some(&"/decode")) => handle_decode(&mut stream, request)?,
-        (_, Some(route)) => {
+        (_, Some(_route)) => {
             send_response(
                 &mut stream,
                 &format!("{}Content-Length: 9\r\n\r\nNot Found", HTTP_404),
