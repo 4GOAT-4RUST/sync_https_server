@@ -29,6 +29,7 @@ impl From<std::io::Error> for RequestError {
     }
 }
 
+#[cfg(test)]
 mod tests {
 
     use super::*;
