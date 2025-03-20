@@ -90,6 +90,7 @@ fn parse_query_params(request: &str) -> HashMap<&str, &str> {
     params
 }
 
+#[cfg(test)]
 mod tests {
 
     use super::*;

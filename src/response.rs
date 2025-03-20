@@ -11,6 +11,7 @@ pub fn send_response<T: Write>(stream: &mut T, response: &str) {
     }
 }
 
+#[cfg(test)]
 mod test {
 
     use super::*;
