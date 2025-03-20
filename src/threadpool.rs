@@ -227,7 +227,6 @@ mod tests {
         assert!(rx.try_recv().is_err());
     }
     #[test]
-    #[should_panic] // This tells Rust that we expect a panic
     fn test_thread_pool_creation_failure() {
         let _ = ThreadPool::new(0); // Should panic due to assert!(size > 0)
     }
