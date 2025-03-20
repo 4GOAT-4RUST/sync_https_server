@@ -17,11 +17,11 @@ impl ThreadPool {
     ///
     /// The `new` function will panic if the size is zero.
     pub fn new(size: usize) -> Result<ThreadPool, &'static str> {
-        if size < 1{
-            return Err("The size of the thread pool cannot be less than one")
+        if size < 1 {
+            return Err("The size of the thread pool cannot be less than one");
         }
         let (sender, receiver) = mpsc::channel();
-        // This creates a channel between the sender and the receiver 
+        // This creates a channel between the sender and the receiver
 
         let receiver = Arc::new(Mutex::new(receiver));
 
@@ -69,7 +69,8 @@ impl Drop for ThreadPool {
             println!("Shutting down worker {}", worker.get_id());
 
             if let Some(thread) = worker.thread.take() {
-                match thread.join() { // we join the other threads that have not been drop so that they finish their execution and are also drop before the worker can be drop 
+                match thread.join() {
+                    // we join the other threads that have not been drop so that they finish their execution and are also drop before the worker can be drop
                     Ok(_) => {
                         println!("Successfully Executed The Job")
                     }
@@ -98,25 +99,25 @@ impl Worker {
         // here we loop so as to allow other incoming request to be spawn on the same thread
         let thread = thread::spawn(move || loop {
             // let _message = {
-                let reciever = match receiver.lock() {
-                    Ok(val) => val.recv(),
-                    Err(e) => {
-                        eprintln!("Error: {}", e);
-                        return ;
-                    }
-                };
-
-                match reciever {
-                    Ok(job) => {
-                        println!("Worker {id} got a job; executing.");
-
-                        job(); // This function executes the job and sends the response to the next thread
-                    }
-                    Err(_) => {
-                        println!("Worker {id} disconnected; shutting down.");
-                        break;
-                    }
+            let reciever = match receiver.lock() {
+                Ok(val) => val.recv(),
+                Err(e) => {
+                    eprintln!("Error: {}", e);
+                    return;
                 }
+            };
+
+            match reciever {
+                Ok(job) => {
+                    println!("Worker {id} got a job; executing.");
+
+                    job(); // This function executes the job and sends the response to the next thread
+                }
+                Err(_) => {
+                    println!("Worker {id} disconnected; shutting down.");
+                    break;
+                }
+            }
             // };
         });
 
@@ -131,7 +132,6 @@ impl Worker {
     }
 }
 
-<<<<<<< HEAD
 #[cfg(test)]
 mod tests {
 
@@ -230,9 +230,3 @@ mod tests {
         let _ = ThreadPool::new(0); // Should panic due to assert!(size > 0)
     }
 }
-<<<<<<< Updated upstream
-=======
->>>>>>> 242b154 (style{clean up} removed all warning in threadpool.rs)
-
-=======
->>>>>>> Stashed changes
