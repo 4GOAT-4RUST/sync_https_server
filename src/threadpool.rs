@@ -17,9 +17,11 @@ impl ThreadPool {
     ///
     /// The `new` function will panic if the size is zero.
     pub fn new(size: usize) -> Result<ThreadPool, &'static str> {
-        assert!(size > 0);
-
+        if size < 1 {
+            return Err("The size of the thread pool cannot be less than one");
+        }
         let (sender, receiver) = mpsc::channel();
+        // This creates a channel between the sender and the receiver
 
         let receiver = Arc::new(Mutex::new(receiver));
 
@@ -64,10 +66,11 @@ impl Drop for ThreadPool {
         drop(self.sender.take());
 
         for worker in &mut self.workers {
-            println!("Shutting down worker {}", worker.get_id());
+            println!("Shutting down worker {}", worker.get_id() + 1);
 
             if let Some(thread) = worker.thread.take() {
                 match thread.join() {
+                    // we join the other threads that have not been drop so that they finish their execution and are also drop before the worker can be drop
                     Ok(_) => {
                         println!("Successfully Executed The Job")
                     }
@@ -80,12 +83,12 @@ impl Drop for ThreadPool {
     }
 }
 
-//// Implementing worker
+/// Implementing worker
 pub struct Worker {
     id: usize,
     pub thread: Option<thread::JoinHandle<()>>,
 }
-pub type Job = Box<dyn FnOnce() + Send + 'static>;
+type Job = Box<dyn FnOnce() + Send + 'static>;
 
 impl Worker {
     /// The worker gets a job from the pool and executes and send the response back to the thread
@@ -93,28 +96,31 @@ impl Worker {
         id: usize,
         receiver: Arc<Mutex<mpsc::Receiver<Job>>>,
     ) -> Result<Worker, &'static str> {
+        // here we loop so as to allow other incoming request to be spawn on the same thread
         let thread = thread::spawn(move || loop {
-            let message = {
-                let reciever = match receiver.lock() {
-                    Ok(val) => val.recv(),
-                    Err(e) => {
-                        eprintln!("Error: {}", e);
-                        return;
-                    }
-                };
+            // let _message = {
 
-                match reciever {
-                    Ok(job) => {
-                        println!("Worker {id} got a job; executing.");
-
-                        job(); // This function executes the job and sends the response to the next thread
-                    }
-                    Err(_) => {
-                        println!("Worker {id} disconnected; shutting down.");
-                        break;
-                    }
+            let reciever = match receiver.lock() {
+                Ok(val) => val.recv(),
+                Err(e) => {
+                    eprintln!("Error: {}", e);
+                    return;
                 }
             };
+
+            match reciever {
+                Ok(job) => {
+                    println!("Worker {} got a job; executing.", id + 1);
+
+                    job(); // This function executes the job and sends the response to the next thread
+                }
+                Err(_) => {
+                    println!("Worker {} disconnected; shutting down.", id + 1);
+                    break;
+                }
+            }
+
+            // };
         });
 
         Ok(Worker {
@@ -125,5 +131,103 @@ impl Worker {
 
     pub fn get_id(&self) -> usize {
         self.id
+    }
+}
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+    use std::sync::{mpsc, Arc, Mutex};
+    use std::thread;
+    use std::time::Duration;
+
+    #[test]
+    fn test_thread_pool_creation() {
+        let size = 4;
+        let pool = ThreadPool::new(size).expect("Failed to create thread pool");
+        assert_eq!(pool.workers.len(), size);
+    }
+
+    #[test]
+    fn test_execute_single_job() {
+        let pool = ThreadPool::new(2).expect("Failed to create thread pool");
+
+        let (tx, rx) = mpsc::channel();
+
+        pool.execute(move || {
+            tx.send(()).expect("Failed to send signal");
+        });
+
+        assert!(rx.recv_timeout(Duration::from_secs(2)).is_ok());
+    }
+
+    #[test]
+    fn test_execute_multiple_jobs() {
+        let pool = ThreadPool::new(3).expect("Failed to create thread pool");
+
+        let (tx, rx) = mpsc::channel();
+        let counter = Arc::new(Mutex::new(0));
+
+        for _ in 0..5 {
+            let tx_clone = tx.clone();
+            let counter_clone = Arc::clone(&counter);
+            pool.execute(move || {
+                let mut num = counter_clone.lock().expect("Failed to lock counter");
+                *num += 1;
+                tx_clone.send(()).expect("Failed to send signal");
+            });
+        }
+
+        for _ in 0..5 {
+            assert!(rx.recv_timeout(Duration::from_secs(2)).is_ok());
+        }
+
+        let final_count = *counter.lock().unwrap();
+        assert_eq!(final_count, 5);
+    }
+
+    #[test]
+    fn test_execute_with_panic() {
+        let pool = ThreadPool::new(2).expect("Failed to create thread pool");
+
+        let (tx, rx) = mpsc::channel();
+
+        pool.execute(move || {
+            let _ = tx.send(()); // Attempt to send signal before panic
+            panic!("This job should panic");
+        });
+
+        assert!(
+            rx.recv_timeout(Duration::from_secs(2)).is_ok(),
+            "Expected at least one successful execution before panic"
+        );
+    }
+
+    #[test]
+    fn test_thread_pool_shutdown() {
+        let pool = ThreadPool::new(2).expect("Failed to create thread pool");
+
+        let (tx, rx) = mpsc::channel();
+
+        for _ in 0..2 {
+            let tx_clone = tx.clone();
+            pool.execute(move || {
+                thread::sleep(Duration::from_millis(100)); // Simulate work
+                tx_clone.send(()).expect("Failed to send signal");
+            });
+        }
+
+        drop(pool); // Drop the pool, should shutdown workers
+
+        assert!(rx.recv_timeout(Duration::from_secs(2)).is_ok());
+        assert!(rx.recv_timeout(Duration::from_secs(2)).is_ok());
+
+        // Ensure all jobs completed and no extra messages are in the queue
+        assert!(rx.try_recv().is_err());
+    }
+    #[test]
+    fn test_thread_pool_creation_failure() {
+        let _ = ThreadPool::new(0); // Should panic due to assert!(size > 0)
     }
 }

@@ -45,6 +45,7 @@ pub fn base64_decode(input: &str) -> Result<Vec<u8>, &'static str> {
     Ok(output)
 }
 
+#[cfg(test)]
 mod test {
     use super::*;
 
@@ -52,6 +53,22 @@ mod test {
     fn test_base64_decode_valid() {
         let input = "SGVsbG8gd29ybGQ="; // "Hello world"
         let expected = b"Hello world".to_vec();
+        let result = base64_decode(input).unwrap();
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_base64_decode_valid2() {
+        let input = "UnVzdCBJcyBWZXJ5IE9wdGltYWwgYW5kIEVmZmllY2llbnQ="; // "Rust Is Very Optimal and Effiecient"
+        let expected = b"Rust Is Very Optimal and Effiecient".to_vec();
+        let result = base64_decode(input).unwrap();
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_base64_decode_valid3() {
+        let input = "RGVjb2RpbmcgU29tZSBCYXNlNjQgZW5jb2RlZCBNZXNzYWdl"; // "Decoding Some Base64 encoded Message"
+        let expected = b"Decoding Some Base64 encoded Message".to_vec();
         let result = base64_decode(input).unwrap();
         assert_eq!(result, expected);
     }

@@ -1,5 +1,7 @@
 use std::net::TcpListener;
-use sync_https_server::{query::handle_client, threadpool::ThreadPool};
+
+use query::handle_client;
+use threadpool::ThreadPool;
 
 fn main() {
     println!("############################################################");
@@ -41,3 +43,7 @@ fn main() {
         });
     }
 }
+
+mod base64_decode;
+mod query;
+mod threadpool;
