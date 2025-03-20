@@ -56,6 +56,7 @@ GET /?msg=<Base64-encoded string>&delay=<milliseconds>
 curl "http://localhost:8080/?msg=SGVsbG8gd29ybGQ=&delay=2000"
 ```
 
+
 ## Preview
 
 ![Preview](/images/Screenshot%20from%202025-03-19%2010-31-10.png)
