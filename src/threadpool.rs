@@ -88,7 +88,7 @@ pub struct Worker {
     id: usize,
     pub thread: Option<thread::JoinHandle<()>>,
 }
-pub type Job = Box<dyn FnOnce() + Send + 'static>;
+type Job = Box<dyn FnOnce() + Send + 'static>;
 
 impl Worker {
     /// The worker gets a job from the pool and executes and send the response back to the thread
@@ -99,6 +99,7 @@ impl Worker {
         // here we loop so as to allow other incoming request to be spawn on the same thread
         let thread = thread::spawn(move || loop {
             // let _message = {
+
             let reciever = match receiver.lock() {
                 Ok(val) => val.recv(),
                 Err(e) => {
@@ -118,6 +119,7 @@ impl Worker {
                     break;
                 }
             }
+
             // };
         });
 
