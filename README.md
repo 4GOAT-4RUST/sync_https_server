@@ -57,12 +57,12 @@ GET http://localhost:8080/?msg=<Base64-encoded string>&delay=<milliseconds>
 
 **Example Request:**
 ```sh
-curl "http://localhost:8080/?msg=SGVsbG8gd29ybGQ=&delay=2000"
+curl "http://127.0.0.1:8080/?payload=Q29uY3VycmVuY3kgaXMgcG93ZXJmdWw=&delay=10"
 ```
 
 ## Preview
 
-![Preview](/images/Screenshot%20from%202025-03-19%2010-31-10.png)
+![Preview](/images/Screenshot%20from%202025-03-20%2016-28-52.png)
 
 ## License
 This project is licensed under the MIT License. See the [LICENSE](https://github.com/4GOAT-4RUST/sync_https_server/blob/dev/LICENSE) file for more details.
