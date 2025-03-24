@@ -111,6 +111,7 @@ impl Worker {
             match reciever {
                 Ok(job) => {
                     println!("Worker {} got a job; executing.", id + 1);
+                    drop(receiver);
 
                     job(); // This function executes the job and sends the response to the next thread
                 }
