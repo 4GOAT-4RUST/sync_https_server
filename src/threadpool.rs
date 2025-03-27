@@ -21,7 +21,11 @@ impl ThreadPool {
             return Err("The size of the thread pool cannot be less than one")
         }
         let (sender, receiver) = mpsc::channel();
+<<<<<<< HEAD
         // This creates a channel between the sender and the receiver
+=======
+        // This creates a channel between the sender and the receiver 
+>>>>>>> 71b0f77 (accepted changes from remote branch)
 
         let receiver = Arc::new(Mutex::new(receiver));
 
@@ -69,8 +73,12 @@ impl Drop for ThreadPool {
             println!("Shutting down worker {}", worker.get_id() + 1);
 
             if let Some(thread) = worker.thread.take() {
+<<<<<<< HEAD
                 match thread.join() {
                     // we join the other threads that have not been drop so that they finish their execution and are also drop before the worker can be drop
+=======
+                match thread.join() { // we join the other threads that have not been drop so that they finish their execution and are also drop before the worker can be drop 
+>>>>>>> 71b0f77 (accepted changes from remote branch)
                     Ok(_) => {
                         println!("Successfully Executed The Job")
                     }
@@ -99,6 +107,16 @@ impl Worker {
         // here we loop so as to allow other incoming request to be spawn on the same thread
         let thread = thread::spawn(move || loop {
             // let _message = {
+<<<<<<< HEAD
+=======
+                let reciever = match receiver.lock() {
+                    Ok(val) => val.recv(),
+                    Err(e) => {
+                        eprintln!("Error: {}", e);
+                        return ;
+                    }
+                };
+>>>>>>> 71b0f77 (accepted changes from remote branch)
 
             let reciever = match receiver.lock() {
                 Ok(val) => val.recv(),
@@ -106,6 +124,7 @@ impl Worker {
                     eprintln!("Error: {}", e);
                     return;
                 }
+<<<<<<< HEAD
             };
 
             match reciever {
@@ -120,6 +139,8 @@ impl Worker {
                 }
             }
 
+=======
+>>>>>>> 71b0f77 (accepted changes from remote branch)
             // };
         });
 
@@ -134,6 +155,7 @@ impl Worker {
     }
 }
 
+<<<<<<< HEAD
 #[cfg(test)]
 mod tests {
 
@@ -231,3 +253,9 @@ mod tests {
         let _ = ThreadPool::new(0); // Should panic due to assert!(size > 0)
     }
 }
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> 242b154 (style{clean up} removed all warning in threadpool.rs)
+
+>>>>>>> 71b0f77 (accepted changes from remote branch)
