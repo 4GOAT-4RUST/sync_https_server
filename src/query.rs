@@ -9,7 +9,6 @@ use crate::response::send_response;
 
 // Common HTTP response status codes
 const HTTP_200: &str = "HTTP/1.1 200 OK\r\n";
-const HTTP_404: &str = "HTTP/1.1 404 Not Found\r\n";
 
 /// Handles incoming client requests and processes them accordingly.
 pub fn handle_client<T: Read + Write>(mut stream: T) -> Result<(), RequestError> {
@@ -30,13 +29,8 @@ pub fn handle_client<T: Read + Write>(mut stream: T) -> Result<(), RequestError>
     }
 
     match (parts.first(), parts.get(1)) {
-        (Some(&"GET"), Some(&"/decode")) => handle_decode(&mut stream, request)?,
-        (_, Some(_route)) => {
-            send_response(
-                &mut stream,
-                &format!("{}Content-Length: 9\r\n\r\nNot Found", HTTP_404),
-            );
-        }
+        (Some(&"GET"), Some(&"/")) => handle_decode(&mut stream, request)?,
+
         _ => return Err(RequestError::InvalidRequestLine),
     }
 
