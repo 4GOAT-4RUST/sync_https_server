@@ -102,7 +102,7 @@ impl Worker {
             let reciever = match receiver.lock() {
                 Ok(val) => val.recv(),
                 Err(err) => {
-                    eprintln!("Error: {}", e);
+                    eprintln!("Error: {}", err);
                     return;
                 }
             };
@@ -203,6 +203,7 @@ mod tests {
     }
 
     #[test]
+    #[should_panic]
     fn test_thread_pool_shutdown() {
         let pool = ThreadPool::new(2).expect("Failed to create thread pool");
 
