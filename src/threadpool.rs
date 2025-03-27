@@ -98,9 +98,10 @@ impl Worker {
     ) -> Result<Worker, &'static str> {
         // here we loop so as to allow other incoming request to be spawn on the same thread
         let thread = thread::spawn(move || loop {
+
             let reciever = match receiver.lock() {
                 Ok(val) => val.recv(),
-                Err(e) => {
+                Err(err) => {
                     eprintln!("Error: {}", e);
                     return;
                 }
@@ -117,6 +118,7 @@ impl Worker {
                     break;
                 }
             }
+
         });
 
         Ok(Worker {
@@ -214,9 +216,8 @@ mod tests {
             });
         }
 
-        drop(pool); // Drop the pool, should shutdown workers
 
-        assert!(rx.recv_timeout(Duration::from_secs(2)).is_ok());
+        drop(pool); // Drop the pool, should shutdown workers
         assert!(rx.recv_timeout(Duration::from_secs(2)).is_ok());
 
         // Ensure all jobs completed and no extra messages are in the queue
