@@ -254,8 +254,17 @@ mod tests {
     }
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> 242b154 (style{clean up} removed all warning in threadpool.rs)
 
 >>>>>>> 71b0f77 (accepted changes from remote branch)
+=======
+<<<<<<< Updated upstream
+=======
+>>>>>>> 242b154 (style{clean up} removed all warning in threadpool.rs)
+
+=======
+>>>>>>> Stashed changes
+>>>>>>> 06944a3 (test: added unit tests)
