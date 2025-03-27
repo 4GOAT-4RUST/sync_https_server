@@ -1,6 +1,8 @@
-use std::net::TcpListener;
-
+mod base64;
+mod handler;
+mod threadpool;
 use handler::handle_client;
+use std::net::TcpListener;
 use threadpool::ThreadPool;
 
 fn main() {
@@ -43,7 +45,3 @@ fn main() {
         });
     }
 }
-
-mod base64;
-mod handler;
-mod threadpool;
