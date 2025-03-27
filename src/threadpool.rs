@@ -17,11 +17,11 @@ impl ThreadPool {
     ///
     /// The `new` function will panic if the size is zero.
     pub fn new(size: usize) -> Result<ThreadPool, &'static str> {
-        if size < 1{
-            return Err("The size of the thread pool cannot be less than one")
+        if size < 1 {
+            return Err("The size of the thread pool cannot be less than one");
         }
         let (sender, receiver) = mpsc::channel();
-        // This creates a channel between the sender and the receiver 
+        // This creates a channel between the sender and the receiver
 
         let receiver = Arc::new(Mutex::new(receiver));
 
@@ -66,10 +66,11 @@ impl Drop for ThreadPool {
         drop(self.sender.take());
 
         for worker in &mut self.workers {
-            println!("Shutting down worker {}", worker.get_id());
+            println!("Shutting down worker {}", worker.get_id() + 1);
 
             if let Some(thread) = worker.thread.take() {
-                match thread.join() { // we join the other threads that have not been drop so that they finish their execution and are also drop before the worker can be drop 
+                match thread.join() {
+                    // we join the other threads that have not been drop so that they finish their execution and are also drop before the worker can be drop
                     Ok(_) => {
                         println!("Successfully Executed The Job")
                     }
@@ -82,12 +83,12 @@ impl Drop for ThreadPool {
     }
 }
 
-//// Implementing worker
+/// Implementing worker
 pub struct Worker {
     id: usize,
     pub thread: Option<thread::JoinHandle<()>>,
 }
-pub type Job = Box<dyn FnOnce() + Send + 'static>;
+type Job = Box<dyn FnOnce() + Send + 'static>;
 
 impl Worker {
     /// The worker gets a job from the pool and executes and send the response back to the thread
@@ -98,25 +99,27 @@ impl Worker {
         // here we loop so as to allow other incoming request to be spawn on the same thread
         let thread = thread::spawn(move || loop {
             // let _message = {
-                let reciever = match receiver.lock() {
-                    Ok(val) => val.recv(),
-                    Err(e) => {
-                        eprintln!("Error: {}", e);
-                        return ;
-                    }
-                };
 
-                match reciever {
-                    Ok(job) => {
-                        println!("Worker {id} got a job; executing.");
-
-                        job(); // This function executes the job and sends the response to the next thread
-                    }
-                    Err(_) => {
-                        println!("Worker {id} disconnected; shutting down.");
-                        break;
-                    }
+            let reciever = match receiver.lock() {
+                Ok(val) => val.recv(),
+                Err(e) => {
+                    eprintln!("Error: {}", e);
+                    return;
                 }
+            };
+
+            match reciever {
+                Ok(job) => {
+                    println!("Worker {} got a job; executing.", id + 1);
+
+                    job(); // This function executes the job and sends the response to the next thread
+                }
+                Err(_) => {
+                    println!("Worker {} disconnected; shutting down.", id + 1);
+                    break;
+                }
+            }
+
             // };
         });
 
@@ -132,11 +135,12 @@ impl Worker {
 }
 
 #[cfg(test)]
-mod test{
-    use std::{sync::{mpsc, Arc, Mutex}, thread, time::Duration};
+mod tests {
 
-    use crate::threadpool::ThreadPool;
-
+    use super::*;
+    use std::sync::{mpsc, Arc, Mutex};
+    use std::thread;
+    use std::time::Duration;
 
     #[test]
     fn test_thread_pool_creation() {
@@ -223,13 +227,7 @@ mod test{
         assert!(rx.try_recv().is_err());
     }
     #[test]
-    #[should_panic] // This tells Rust that we expect a panic
     fn test_thread_pool_creation_failure() {
         let _ = ThreadPool::new(0); // Should panic due to assert!(size > 0)
-        panic!("Size of threadpool cannot be less than 1");
-
     }
 }
-
-
-

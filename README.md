@@ -1,48 +1,53 @@
 # SYNC HTTP DELAY SERVER 
 
-## Description
-A Rust server from scratch that accepts HTTP requests, and delay the responds bef
+This Server accepts HTTP GET requests , delays the responds before sending it back.
+
 ## Features
 
-- Threadpool
+- Threadpool 
 - Multi-threaded system 
 
-## Prerequisites
+
+## Build & Run
+
+### Prerequisites
 
 Before running this project, ensure you have:
 - [Rust & Cargo](https://www.rust-lang.org/tools/install)
-- [Docker](https://docs.docker.com/get-docker/) <br>
-Installed.
+Installed
 
-## Installation & Running
-
-### Using Cargo
+---
 ```sh  
 git clone https://github.com/4GOAT-4RUST/sync_https_server.git  # Clone repo
 cd sync_https_server  # Enter project directory
 cargo run  # Build and run the server
 ```
 
-### Using Docker
-#### Build and Run
+#### Using Docker
+- Optionally you can use [Docker](https://docs.docker.com/get-docker/) to build and run the server 
+ 
 ```sh
 docker build -t sync_https_server .  # Build Docker image
 docker run --rm -p 8080:8080 sync_https_server  # Run container
 ```
-#### (Optional) Pull Prebuilt Image
+OR
+
+ - [Docker compose](https://docs.docker.com/compose/) <br>
+
+```sh 
+docker-compose up --build  # Build and start with Compose
+
+```
+- also you could simply Pull the Prebuilt Image
 ```sh
 docker pull ghcr.io/4goat-4rust/sync_https_server:slim  # Use prebuilt image
-```
-#### Using Docker Compose
-```sh
-docker-compose up --build  # Build and start with Compose
 ```
 ## Sending Requests
 
 The server expects a **GET** request with two query parameters:
 
 ```
-GET /?msg=<Base64-encoded string>&delay=<milliseconds>
+GET http://localhost:8080/?msg=<Base64-encoded string>&delay=<milliseconds>
 ```
 
 | Parameter | Description                                     | Example                              |
