@@ -97,31 +97,27 @@ impl Worker {
         receiver: Arc<Mutex<mpsc::Receiver<Job>>>,
     ) -> Result<Worker, &'static str> {
         // here we loop so as to allow other incoming request to be spawn on the same thread
-        let thread = thread::spawn(
-            move || loop {
-            
-
-                let reciever = match receiver.lock() {
-                    Ok(val) => val.recv(),
-                    Err(e) => {
-                        eprintln!("Error: {}", e);
-                        return;
-                    }
-                };
-
-                match reciever {
-                    Ok(job) => {
-                        println!("Worker {} got a job; executing.", id + 1);
-
-                        job(); // This function executes the job and sends the response to the next thread
-                    }
-                    Err(_) => {
-                        println!("Worker {} disconnected; shutting down.", id + 1);
-                        break;
-                    }
+        let thread = thread::spawn(move || loop {
+            let reciever = match receiver.lock() {
+                Ok(val) => val.recv(),
+                Err(e) => {
+                    eprintln!("Error: {}", e);
+                    return;
                 }
-            }, 
-        );
+            };
+
+            match reciever {
+                Ok(job) => {
+                    println!("Worker {} got a job; executing.", id + 1);
+
+                    job(); // This function executes the job and sends the response to the next thread
+                }
+                Err(_) => {
+                    println!("Worker {} disconnected; shutting down.", id + 1);
+                    break;
+                }
+            }
+        });
 
         Ok(Worker {
             id,
