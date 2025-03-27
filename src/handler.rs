@@ -3,7 +3,7 @@ use std::io::{Read, Write};
 use std::time::Duration;
 use std::{str, thread};
 
-use crate::base64_decode::base64_decode;
+use crate::base64::base64_decode;
 use std::fmt;
 
 #[derive(Debug)]
