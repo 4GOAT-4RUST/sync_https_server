@@ -1,5 +1,9 @@
+mod query;
+mod threadpool;
+
 use std::net::TcpListener;
-use sync_https_server::{query::handle_client, threadpool::ThreadPool};
+use query::handle_client;
+use threadpool::ThreadPool;
 
 fn main() {
     println!("############################################################");
