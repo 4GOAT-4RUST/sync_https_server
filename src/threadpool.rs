@@ -17,15 +17,19 @@ impl ThreadPool {
     ///
     /// The `new` function will panic if the size is zero.
     pub fn new(size: usize) -> Result<ThreadPool, &'static str> {
-        if size < 1{
-            return Err("The size of the thread pool cannot be less than one")
+        if size < 1 {
+            return Err("The size of the thread pool cannot be less than one");
         }
         let (sender, receiver) = mpsc::channel();
+<<<<<<< HEAD
 <<<<<<< HEAD
         // This creates a channel between the sender and the receiver
 =======
         // This creates a channel between the sender and the receiver 
 >>>>>>> 71b0f77 (accepted changes from remote branch)
+=======
+        // This creates a channel between the sender and the receiver
+>>>>>>> 76f3eac (test: added unit tests)
 
         let receiver = Arc::new(Mutex::new(receiver));
 
@@ -74,11 +78,16 @@ impl Drop for ThreadPool {
 
             if let Some(thread) = worker.thread.take() {
 <<<<<<< HEAD
+<<<<<<< HEAD
                 match thread.join() {
                     // we join the other threads that have not been drop so that they finish their execution and are also drop before the worker can be drop
 =======
                 match thread.join() { // we join the other threads that have not been drop so that they finish their execution and are also drop before the worker can be drop 
 >>>>>>> 71b0f77 (accepted changes from remote branch)
+=======
+                match thread.join() {
+                    // we join the other threads that have not been drop so that they finish their execution and are also drop before the worker can be drop
+>>>>>>> 76f3eac (test: added unit tests)
                     Ok(_) => {
                         println!("Successfully Executed The Job")
                     }
@@ -108,6 +117,7 @@ impl Worker {
         let thread = thread::spawn(move || loop {
             // let _message = {
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
                 let reciever = match receiver.lock() {
                     Ok(val) => val.recv(),
@@ -118,6 +128,8 @@ impl Worker {
                 };
 >>>>>>> 71b0f77 (accepted changes from remote branch)
 
+=======
+>>>>>>> 76f3eac (test: added unit tests)
             let reciever = match receiver.lock() {
                 Ok(val) => val.recv(),
                 Err(e) => {
@@ -125,15 +137,23 @@ impl Worker {
                     return;
                 }
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 76f3eac (test: added unit tests)
             };
 
             match reciever {
                 Ok(job) => {
+<<<<<<< HEAD
                     println!("Worker {} got a job; executing.", id + 1);
+=======
+                    println!("Worker {id} got a job; executing.");
+>>>>>>> 76f3eac (test: added unit tests)
 
                     job(); // This function executes the job and sends the response to the next thread
                 }
                 Err(_) => {
+<<<<<<< HEAD
                     println!("Worker {} disconnected; shutting down.", id + 1);
                     break;
                 }
@@ -141,6 +161,12 @@ impl Worker {
 
 =======
 >>>>>>> 71b0f77 (accepted changes from remote branch)
+=======
+                    println!("Worker {id} disconnected; shutting down.");
+                    break;
+                }
+            }
+>>>>>>> 76f3eac (test: added unit tests)
             // };
         });
 
@@ -155,7 +181,6 @@ impl Worker {
     }
 }
 
-<<<<<<< HEAD
 #[cfg(test)]
 mod tests {
 
@@ -255,6 +280,7 @@ mod tests {
 }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> 242b154 (style{clean up} removed all warning in threadpool.rs)
@@ -268,3 +294,5 @@ mod tests {
 =======
 >>>>>>> Stashed changes
 >>>>>>> 06944a3 (test: added unit tests)
+=======
+>>>>>>> 76f3eac (test: added unit tests)
